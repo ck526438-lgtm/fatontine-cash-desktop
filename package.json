@@ -1,0 +1,78 @@
+{
+  "name": "fatontine-cash-desktop",
+  "productName": "FATONTINE CASH",
+  "version": "1.0.0",
+  "description": "Application desktop hors-ligne de gestion de tontines FATONTINE CASH (Cote d'Ivoire)",
+  "main": "main.js",
+  "author": {
+    "name": "FATONTINE CASH",
+    "email": "fatima@fatontine.ci"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "prestart": "npm run build:css",
+    "build:css": "tailwindcss -i ./src/styles/input.css -o ./src/styles/tailwind.build.css --minify",
+    "build:icons": "node scripts/generate-icons.js",
+    "build:win": "npm run build:css && electron-builder --win --publish never",
+    "build:dir": "npm run build:css && electron-builder --win --dir"
+  },
+  "build": {
+    "appId": "ci.fatontine.cash.desktop",
+    "productName": "FATONTINE CASH",
+    "copyright": "Copyright © 2026 FATONTINE CASH",
+    "asar": true,
+    "compression": "maximum",
+    "npmRebuild": false,
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "package.json",
+      "src/**/*"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "FATONTINE CASH",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "FATONTINE-CASH-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "FATONTINE-CASH-Portable-${version}.${ext}"
+    }
+  },
+  "devDependencies": {
+    "electron": "^45.5.0",
+    "electron-builder": "^26.18.0",
+    "tailwindcss": "^3.4.19"
+  }
+}

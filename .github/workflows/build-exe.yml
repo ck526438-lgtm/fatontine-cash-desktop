@@ -1,0 +1,63 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Package FATONTINE CASH (.exe)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Compiler le CSS et l'installateur Windows
+        run: npm run build:win
+
+      - name: Vérifier les fichiers générés
+        shell: pwsh
+        run: |
+          Get-ChildItem dist | Format-Table Name, Length
+          if (-not (Test-Path "dist/FATONTINE-CASH-Setup-1.0.0.exe")) {
+            throw "L'installateur FATONTINE-CASH-Setup-1.0.0.exe est introuvable"
+          }
+          if (-not (Test-Path "dist/FATONTINE-CASH-Portable-1.0.0.exe")) {
+            throw "La version portable FATONTINE-CASH-Portable-1.0.0.exe est introuvable"
+          }
+
+      - name: Publier les fichiers (artefacts du run)
+        uses: actions/upload-artifact@v4
+        with:
+          name: FATONTINE-CASH-1.0.0-windows
+          path: |
+            dist/FATONTINE-CASH-Setup-1.0.0.exe
+            dist/FATONTINE-CASH-Portable-1.0.0.exe
+          if-no-files-found: error
+
+      - name: Attacher les .exe à la GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: FATONTINE CASH ${{ github.ref_name }}
+          draft: false
+          files: |
+            dist/FATONTINE-CASH-Setup-1.0.0.exe
+            dist/FATONTINE-CASH-Portable-1.0.0.exe

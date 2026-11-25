@@ -1,0 +1,17 @@
+node_modules/
+dist/
+*.log
+*.pdf
+
+# Outils locaux (Node portable, captures de test)
+.tools/
+
+# Fichiers générés au build (reconstruits par `npm run build:css`)
+src/styles/tailwind.build.css
+
+# Fichiers système / éditeurs
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+.DS_Store

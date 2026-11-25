@@ -1,0 +1,2374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FATONTINE CASH — La tontine, en toute simplicité</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' file: data:; script-src 'self' file: 'unsafe-inline'; style-src 'self' file: 'unsafe-inline'; img-src 'self' file: data: blob:; font-src 'self' file: data:; connect-src 'self' file:; object-src 'none'; base-uri 'none'">
+    <!-- Polices locales : fonctionnement 100% hors-ligne -->
+    <link rel="stylesheet" href="vendor/fonts/fonts.css">
+    <!-- Font Awesome local -->
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+    <!-- Tailwind CSS compilé localement (npm run build:css) -->
+    <link rel="stylesheet" href="styles/tailwind.build.css">
+
+    <style>
+        /* ===================================================================== */
+        /* DESIGN SYSTEM : LIQUID GLASS (BLEU NUIT • OR • BLANC PERLE)           */
+        /* ===================================================================== */
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            /* Arrière-plan atmosphérique diagonal Bleu Nuit vers Lumière Dorée */
+            background: linear-gradient(125deg, #071326 0%, #102546 38%, #7E8899 68%, #E7D5A7 100%);
+            background-attachment: fixed;
+            color: #0F172A;
+            overflow-x: hidden;
+        }
+
+        /* Fenêtre principale en Verre Liquide */
+        .liquid-glass-shell {
+            background: rgba(255, 255, 255, 0.24);
+            backdrop-filter: blur(34px) saturate(165%);
+            -webkit-backdrop-filter: blur(34px) saturate(165%);
+            border: 1.5px solid rgba(255, 255, 255, 0.55);
+            box-shadow:
+                0 35px 80px -15px rgba(4, 11, 22, 0.55),
+                inset 0 1px 2px rgba(255, 255, 255, 0.85),
+                inset 0 -1px 2px rgba(255, 255, 255, 0.25);
+        }
+
+        /* Panneaux secondaires en verre dépoli */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.48);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            box-shadow:
+                0 12px 32px -8px rgba(10, 25, 47, 0.14),
+                inset 0 1px 1px rgba(255, 255, 255, 0.8);
+        }
+
+        .glass-panel-dark {
+            background: linear-gradient(145deg, rgba(10, 25, 47, 0.88), rgba(22, 46, 84, 0.82));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            box-shadow:
+                0 15px 35px -8px rgba(6, 15, 30, 0.45),
+                inset 0 1px 1px rgba(255, 255, 255, 0.4);
+        }
+
+        /* Cartes KPI spécifiques inspirées de la maquette */
+        .kpi-card-gold {
+            background: linear-gradient(135deg, rgba(235, 198, 95, 0.82) 0%, rgba(196, 154, 48, 0.72) 100%);
+            backdrop-filter: blur(18px);
+            border: 1.2px solid rgba(255, 245, 210, 0.75);
+            box-shadow: 0 14px 30px -10px rgba(140, 105, 20, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.85);
+        }
+
+        .kpi-card-navy {
+            background: linear-gradient(135deg, rgba(11, 31, 63, 0.92) 0%, rgba(25, 62, 118, 0.85) 100%);
+            backdrop-filter: blur(18px);
+            border: 1.2px solid rgba(140, 185, 255, 0.45);
+            box-shadow: 0 16px 34px -10px rgba(6, 16, 36, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.35);
+        }
+
+        .kpi-card-pearl {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.78) 0%, rgba(235, 242, 252, 0.62) 100%);
+            backdrop-filter: blur(18px);
+            border: 1.2px solid rgba(255, 255, 255, 0.85);
+            box-shadow: 0 14px 30px -10px rgba(15, 23, 42, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+        }
+
+        .kpi-card-amber {
+            background: linear-gradient(135deg, rgba(247, 214, 152, 0.78) 0%, rgba(232, 180, 115, 0.65) 100%);
+            backdrop-filter: blur(18px);
+            border: 1.2px solid rgba(255, 240, 215, 0.8);
+            box-shadow: 0 14px 30px -10px rgba(180, 110, 30, 0.22), inset 0 1px 2px rgba(255, 255, 255, 0.85);
+        }
+
+        /* Bouton actif illuminé de la barre latérale (Pilule verre doré/bleu) */
+        .nav-pill-active {
+            background: linear-gradient(90deg, rgba(10, 25, 47, 0.88) 0%, rgba(164, 128, 36, 0.68) 100%);
+            border: 1px solid rgba(246, 224, 148, 0.75);
+            box-shadow: 0 8px 20px -4px rgba(10, 25, 47, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+            color: #FFFFFF !important;
+        }
+
+        /* Barre de défilement discrète */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.15); }
+        ::-webkit-scrollbar-thumb { background: rgba(10, 25, 47, 0.3); border-radius: 9999px; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.25s ease-out forwards; }
+
+        /* ===================================================================== */
+        /* MODE APPLICATION DESKTOP (ELECTRON) : BARRE DE TITRE PERSONNALISÉE    */
+        /* ===================================================================== */
+        #desktopTitlebar { display: none; }
+        body.is-desktop {
+            height: 100vh;
+            overflow: hidden;
+            padding: 44px 16px 16px;
+        }
+        body.is-desktop #appShell {
+            height: calc(100vh - 60px);
+            min-height: 0;
+        }
+        body.is-desktop #desktopTitlebar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 36px;
+            padding: 0 150px 0 14px;
+            background: linear-gradient(90deg, #040B16 0%, #0A192F 55%, #13284A 100%);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.45);
+            z-index: 200;
+            -webkit-app-region: drag;
+            user-select: none;
+        }
+        .dt-brand { display: flex; align-items: center; gap: 8px; color: #FFFFFF; font-size: 10.5px; font-weight: 800; letter-spacing: .14em; }
+        .dt-brand i { color: #ECCB60; font-size: 12px; }
+        .dt-brand strong { color: #ECCB60; }
+        .dt-sep { width: 1px; height: 14px; background: rgba(255, 255, 255, 0.22); }
+        .dt-status { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 600; color: rgba(255, 255, 255, 0.62); }
+        .dt-dot { width: 6px; height: 6px; border-radius: 9999px; background: #34D399; box-shadow: 0 0 6px rgba(52, 211, 153, 0.85); }
+        .dt-dot.is-error { background: #F87171; box-shadow: none; }
+
+        /* Impression : reçu officiel & bilan comptable */
+        @media print {
+            body { background: #FFFFFF !important; }
+
+            /* Reçu */
+            body.printing-receipt * { visibility: hidden; }
+            body.printing-receipt #receiptModal,
+            body.printing-receipt #receiptPrintableArea,
+            body.printing-receipt #receiptPrintableArea * { visibility: visible; }
+            body.printing-receipt #receiptModal {
+                position: fixed; inset: 0; background: #FFFFFF !important;
+                padding: 0 !important; margin: 0 !important; display: block !important;
+                backdrop-filter: none !important;
+            }
+            body.printing-receipt #receiptPrintableArea {
+                box-shadow: none !important; border: 2px solid #0A192F !important;
+                width: 100% !important; max-width: 100% !important; margin: 0 auto !important;
+                border-radius: 0 !important;
+            }
+
+            /* Bilan comptable */
+            body.printing-report {
+                padding: 0 !important;
+                background: #FFFFFF !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            body.printing-report #desktopTitlebar,
+            body.printing-report #sidebar,
+            body.printing-report #sidebarBackdrop,
+            body.printing-report header,
+            body.printing-report #toastContainer,
+            body.printing-report .no-print { display: none !important; }
+            body.printing-report .view-section:not(#view-rapports) { display: none !important; }
+            body.printing-report #appShell {
+                display: block !important; width: 100% !important; max-width: 100% !important;
+                min-height: 0 !important; border: none !important; box-shadow: none !important;
+                background: #FFFFFF !important; border-radius: 0 !important; overflow: visible !important;
+            }
+            body.printing-report #appShell > div {
+                overflow: visible !important; padding: 0 !important;
+            }
+            body.printing-report .glass-panel,
+            body.printing-report .glass-panel-dark {
+                background: #FFFFFF !important; box-shadow: none !important;
+                border: 1px solid #CBD5E1 !important; backdrop-filter: none !important;
+            }
+            body.printing-report h3, body.printing-report h4 { color: #0A192F !important; }
+            body.printing-report table th { color: #0A192F !important; background: #F1F5F9 !important; }
+
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-gold-500 selection:text-navy-900 p-2 sm:p-4 lg:p-6 flex items-center justify-center">
+
+    <!-- BARRE DE TITRE PERSONNALISÉE (APPLICATION DESKTOP UNIQUEMENT) -->
+    <div id="desktopTitlebar">
+        <div class="dt-brand"><i class="fa-solid fa-coins"></i><span>FATONTINE <strong>CASH</strong></span></div>
+        <div class="dt-sep"></div>
+        <div id="desktopSaveStatus" class="dt-status">
+            <span class="dt-dot"></span>
+            <span id="desktopSaveStatusText">Sauvegarde PC active</span>
+        </div>
+    </div>
+
+    <!-- CONTENEUR DE NOTIFICATIONS TOAST -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- ===================================================================== -->
+    <!-- 1. ÉCRAN DE CONNEXION ADMINISTRATEUR (STYLE LIQUID GLASS)             -->
+    <!-- ===================================================================== -->
+    <div id="loginScreen" class="w-full max-w-md liquid-glass-shell rounded-[36px] overflow-hidden z-10 animate-fade-in my-auto">
+        <!-- En-tête Verre Bleu Nuit & Or -->
+        <div class="glass-panel-dark px-8 py-8 text-center border-b border-white/25 relative">
+            <div class="w-16 h-16 mx-auto bg-gradient-to-br from-gold-300 to-gold-600 rounded-2xl flex items-center justify-center shadow-lg shadow-gold-500/30 mb-4 border border-white/60">
+                <i class="fa-solid fa-coins text-navy-900 text-3xl"></i>
+            </div>
+            <h1 class="text-2xl font-extrabold tracking-tight text-white">FATONTINE <span class="text-gold-400">CASH</span></h1>
+            <p class="text-gold-200 text-xs font-medium mt-1">La tontine, en toute simplicité.</p>
+            <div class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[11px] text-white/90">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                Accès Administratrice • Côte d'Ivoire (FCFA)
+            </div>
+        </div>
+
+        <!-- Formulaire de connexion -->
+        <div class="p-7 sm:p-8 bg-white/65 backdrop-blur-xl">
+            <div id="loginAlert" class="hidden mb-4 p-3 rounded-2xl bg-red-500/15 border border-red-400/50 text-red-900 text-xs flex items-start gap-2 font-semibold">
+                <i class="fa-solid fa-shield-halved mt-0.5 text-red-600"></i>
+                <span id="loginAlertText">Identifiants incorrects.</span>
+            </div>
+
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-navy-900 uppercase tracking-wider mb-1.5">Identifiant Administratrice</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-navy-800/60">
+                            <i class="fa-solid fa-envelope"></i>
+                        </span>
+                        <input type="email" id="loginEmail" value="fatima@fatontine.ci" required
+                            class="w-full pl-10 pr-4 py-3 bg-white/80 border border-white rounded-2xl text-sm font-semibold text-navy-900 shadow-inner focus:outline-none focus:ring-2 focus:ring-gold-500 transition">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="block text-xs font-bold text-navy-900 uppercase tracking-wider">Mot de passe</label>
+                        <button type="button" onclick="triggerPasswordReset()" class="text-xs font-bold text-navy-800 hover:text-gold-600 transition">
+                            Mot de passe oublié ?
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-navy-800/60">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="loginPassword" value="Fatima2026!" required
+                            class="w-full pl-10 pr-10 py-3 bg-white/80 border border-white rounded-2xl text-sm font-semibold text-navy-900 shadow-inner focus:outline-none focus:ring-2 focus:ring-gold-500 transition">
+                        <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-navy-800/60 hover:text-navy-900">
+                            <i id="eyeIcon" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pt-2 space-y-2.5">
+                    <button type="submit"
+                        class="w-full py-3.5 px-4 kpi-card-navy text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition transform active:scale-[0.99]">
+                        <span>Ouvrir l'espace Fatima</span>
+                        <i class="fa-solid fa-arrow-right text-gold-400"></i>
+                    </button>
+
+                    <button type="button" onclick="quickDemoLogin()"
+                        class="w-full py-2.5 px-4 bg-white/75 hover:bg-white text-navy-900 border border-white font-bold text-xs rounded-2xl flex items-center justify-center gap-2 shadow-sm transition">
+                        <i class="fa-solid fa-sparkles text-gold-600"></i>
+                        <span>Connexion Instantanée (Démo Fatima)</span>
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-6 pt-4 border-t border-navy-900/10 flex items-center justify-between text-[11px] font-semibold text-navy-900/70">
+                <span><i class="fa-solid fa-shield-check text-emerald-700 mr-1"></i> SSL & Loi ARTCI</span>
+                <span id="appVersionLabel">Version 1.0 • FCFA</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- 2. CONTENEUR PRINCIPAL LIQUID GLASS (TABLET / DESKTOP / MOBILE SHELL)  -->
+    <!-- ===================================================================== -->
+    <div id="appShell" class="hidden w-full max-w-[1380px] min-h-[88vh] liquid-glass-shell rounded-[32px] sm:rounded-[40px] flex flex-col lg:flex-row overflow-hidden relative">
+
+        <!-- OVERLAY MOBILE POUR LA SIDEBAR -->
+        <div id="sidebarBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-navy-950/60 backdrop-blur-sm z-30 hidden lg:hidden"></div>
+
+        <!-- BARRE LATÉRALE EN VERRE DÉPOLI (GAUCHE) -->
+        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 w-72 bg-navy-950/85 lg:bg-white/10 backdrop-blur-2xl text-white z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col border-r border-white/30">
+            <!-- Logo FATONTINE CASH -->
+            <div class="px-6 pt-7 pb-5 flex items-center justify-between">
+                <div>
+                    <h1 class="font-extrabold text-xl tracking-tight text-white leading-none drop-shadow-sm">
+                        FATONTINE <span class="text-gold-400">CASH</span>
+                    </h1>
+                    <p class="text-[11px] text-white/80 font-medium mt-1">La tontine, en toute simplicité</p>
+                </div>
+                <button onclick="toggleMobileSidebar()" class="lg:hidden text-white/80 hover:text-white p-2">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Navigation Pilules Liquid Glass -->
+            <nav class="flex-1 px-4 py-3 space-y-2 overflow-y-auto" id="mainNav">
+                <button onclick="navigateTo('dashboard')" data-view="dashboard" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-full text-sm font-semibold text-white/90 hover:bg-white/15 transition">
+                    <i class="fa-solid fa-house w-5 text-center"></i>
+                    <span>Tableau de Bord</span>
+                </button>
+
+                <button onclick="navigateTo('inscriptions')" data-view="inscriptions" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-full text-sm font-semibold text-white/90 hover:bg-white/15 transition">
+                    <div class="flex items-center gap-3.5">
+                        <i class="fa-solid fa-file-signature w-5 text-center"></i>
+                        <div class="text-left leading-tight">
+                            <span class="block">Inscriptions</span>
+                            <span class="text-[10px] text-gold-300 font-normal">(En attente)</span>
+                        </div>
+                    </div>
+                    <span id="navPendingBadge" class="px-2.5 py-0.5 text-xs font-extrabold rounded-full bg-gold-400 text-navy-900 shadow">0</span>
+                </button>
+
+                <button onclick="navigateTo('membres-groupes')" data-view="membres-groupes" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-full text-sm font-semibold text-white/90 hover:bg-white/15 transition">
+                    <i class="fa-solid fa-user-group w-5 text-center"></i>
+                    <span>Membres & Groupes</span>
+                </button>
+
+                <button onclick="navigateTo('cotisations')" data-view="cotisations" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-full text-sm font-semibold text-white/90 hover:bg-white/15 transition">
+                    <i class="fa-solid fa-wallet w-5 text-center"></i>
+                    <span>Cotisations & Reçus</span>
+                </button>
+
+                <button onclick="navigateTo('beneficiaires')" data-view="beneficiaires" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-full text-sm font-semibold text-white/90 hover:bg-white/15 transition">
+                    <i class="fa-solid fa-hand-holding-heart w-5 text-center"></i>
+                    <span>Bénéficiaires</span>
+                </button>
+
+                <button onclick="navigateTo('rapports')" data-view="rapports" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-full text-sm font-semibold text-white/90 hover:bg-white/15 transition">
+                    <i class="fa-solid fa-chart-column w-5 text-center"></i>
+                    <span>Rapports</span>
+                </button>
+            </nav>
+
+            <!-- Profil Administratrice Fatima en bas à gauche (fidèle à l'image) -->
+            <div class="p-4 mt-auto border-t border-white/20 space-y-2.5">
+                <button onclick="openBackupModal()" title="Sauvegarder ou restaurer la base de données du PC"
+                    class="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-gold-400/40 text-xs font-bold text-white transition">
+                    <i class="fa-solid fa-hard-drive text-gold-300 text-sm w-5 text-center"></i>
+                    <span class="text-left leading-tight">Sauvegarde / Restauration PC</span>
+                </button>
+
+                <div class="flex items-center justify-between bg-white/15 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-white/30">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold-300 to-gold-600 text-navy-900 font-extrabold flex items-center justify-center text-sm border-2 border-white shadow">
+                            FA
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-white leading-none">Fatima</p>
+                            <span class="inline-block mt-1 px-2 py-0.5 rounded-full bg-navy-900/80 text-gold-300 text-[10px] font-bold">Admin</span>
+                        </div>
+                    </div>
+                    <button onclick="logout()" title="Déconnexion sécurisée" class="w-8 h-8 rounded-full bg-white/15 hover:bg-red-500 text-white flex items-center justify-center transition">
+                        <i class="fa-solid fa-power-off text-xs"></i>
+                    </button>
+                </div>
+
+                <button onclick="resetDemoData()" class="w-full text-center text-[11px] text-white/70 hover:text-gold-300 transition py-1">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Réinitialiser données démo
+                </button>
+            </div>
+        </aside>
+
+        <!-- ZONE CENTRALE & DROITE -->
+        <div class="flex-1 flex flex-col min-w-0 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+
+            <!-- EN-TÊTE SUPÉRIEUR (TITRE + PILULES DE STATUT + SÉLECTEUR DE GROUPE) -->
+            <header class="flex flex-col gap-4 mb-6">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <button onclick="toggleMobileSidebar()" class="lg:hidden w-10 h-10 rounded-full glass-panel flex items-center justify-center text-navy-900">
+                            <i class="fa-solid fa-bars"></i>
+                        </button>
+                        <h2 id="pageHeaderTitle" class="text-xl sm:text-2xl font-extrabold text-white drop-shadow-sm">
+                            Tableau de Bord <span class="text-white/60 font-medium">/</span> <span class="text-gold-200">Fatima</span>
+                        </h2>
+                    </div>
+
+                    <!-- Icônes Notifications & Menu rapide -->
+                    <div class="flex items-center gap-2.5">
+                        <button onclick="navigateTo('inscriptions')" class="relative w-10 h-10 rounded-full bg-white/75 hover:bg-white text-navy-900 flex items-center justify-center shadow-sm border border-white transition" title="Notifications & Dossiers en attente">
+                            <i class="fa-regular fa-bell text-base"></i>
+                            <span id="headerNotifDot" class="absolute top-2 right-2.5 w-2.5 h-2.5 rounded-full bg-red-500 border-2 border-white"></span>
+                        </button>
+                        <button onclick="navigateTo('cotisations')" class="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-full kpi-card-navy text-white text-xs font-bold transition">
+                            <i class="fa-solid fa-plus text-gold-400"></i>
+                            <span>Encaisser</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Barre secondaire : Pilules de navigation rapide + Sélecteur de Groupe actif -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-white/35 backdrop-blur-md border border-white/50 w-fit">
+                        <button onclick="navigateTo('dashboard')" class="px-3.5 py-1.5 rounded-full bg-white/85 text-navy-900 text-xs font-extrabold shadow-sm flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-gold-500"></span> Statut
+                        </button>
+                        <button onclick="navigateTo('rapports')" class="px-3.5 py-1.5 rounded-full text-navy-900/80 hover:bg-white/40 text-xs font-bold flex items-center gap-1.5 transition">
+                            <span class="w-2 h-2 rounded-full bg-navy-800"></span> Indicateurs
+                        </button>
+                        <button onclick="navigateTo('membres-groupes')" class="px-3.5 py-1.5 rounded-full text-navy-900/80 hover:bg-white/40 text-xs font-bold flex items-center gap-1.5 transition">
+                            <span class="w-2 h-2 rounded-full bg-slate-500"></span> Formules
+                        </button>
+                    </div>
+
+                    <!-- Sélecteur de Groupe Actif (Pilule blanche à droite comme sur l'image) -->
+                    <div class="relative">
+                        <select id="activeGroupSelector" onchange="onDashboardGroupChange()"
+                            class="appearance-none pl-4 pr-10 py-2.5 rounded-full bg-white/85 hover:bg-white text-navy-900 text-xs sm:text-sm font-extrabold border border-white shadow-sm outline-none cursor-pointer transition">
+                        </select>
+                        <i class="fa-solid fa-chevron-down text-xs text-navy-900 absolute right-4 top-3.5 pointer-events-none"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- ============================================================= -->
+            <!-- VUE 1 : TABLEAU DE BORD LIQUID GLASS (FIDÈLE À LA MAQUETTE)   -->
+            <!-- ============================================================= -->
+            <section id="view-dashboard" class="view-section flex-1 flex flex-col justify-between gap-6 animate-fade-in">
+                <div>
+                    <p class="text-xs font-extrabold uppercase tracking-wider text-white/90 mb-3 drop-shadow-sm">
+                        Tableau des Actifs & Suivi du Cycle
+                    </p>
+
+                    <!-- GRILLE PRINCIPALE : 4 CARTES KPI À GAUCHE + JAUGE 90% & LISTE À DROITE -->
+                    <div class="grid grid-cols-1 xl:grid-cols-12 gap-5">
+
+                        <!-- COLONNE GAUCHE (8 cols) : LES 4 CARTES KPI EN VERRE -->
+                        <div class="xl:col-span-8 flex flex-col justify-between gap-5">
+                            <!-- Guide d'accueil vide pour les tout premiers utilisateurs de Fatima -->
+                            <div id="emptyOnboardingBanner" class="glass-panel rounded-[28px] p-5 border border-white/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div class="space-y-1">
+                                    <div class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-navy-900 text-gold-300 text-[10px] font-extrabold uppercase tracking-wider">
+                                        <i class="fa-solid fa-rocket"></i> Production V1 • Démarrage à Zéro
+                                    </div>
+                                    <h3 class="text-sm sm:text-base font-extrabold text-navy-950">
+                                        Bienvenue Fatima — Espace prêt pour vos tout premiers membres
+                                    </h3>
+                                    <p class="text-xs text-slate-700 leading-relaxed">
+                                        1. Créez votre 1er groupe (10 places max, formule officielle). &nbsp;•&nbsp;
+                                        2. Enregistrez & validez les dossiers (CNI/Extrait + Témoin + ARTCI). &nbsp;•&nbsp;
+                                        3. Encaissez avec ID Wave & envoyez le reçu PDF/WhatsApp.
+                                    </p>
+                                </div>
+                                <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
+                                    <button type="button" onclick="openCreateGroupModal()" class="px-4 py-2.5 rounded-full kpi-card-navy text-white text-xs font-extrabold whitespace-nowrap transition hover:opacity-95">
+                                        <i class="fa-solid fa-layer-group text-gold-400 mr-1"></i> 1. Créer un Groupe
+                                    </button>
+                                    <button type="button" onclick="navigateTo('inscriptions'); switchInscriptionTab('form');" class="px-4 py-2.5 rounded-full kpi-card-gold text-navy-950 text-xs font-extrabold whitespace-nowrap transition hover:opacity-95">
+                                        <i class="fa-solid fa-user-plus mr-1"></i> 2. 1ère Inscription
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-5">
+                                <!-- Carte 1 : Membres Actifs (Dégradé Or) -->
+                                <div onclick="navigateTo('membres-groupes')" class="sm:col-span-5 kpi-card-gold rounded-[28px] p-6 cursor-pointer hover:scale-[1.01] transition flex flex-col justify-between min-h-[168px]">
+                                    <div class="w-12 h-12 rounded-2xl bg-white/35 border border-white/60 flex items-center justify-center text-navy-900 shadow-sm">
+                                        <i class="fa-solid fa-users text-xl"></i>
+                                    </div>
+                                    <div class="mt-4">
+                                        <p class="text-xs font-bold text-navy-950/80">Membres Actifs</p>
+                                        <div class="flex items-baseline justify-between mt-1">
+                                            <h3 id="kpiMembersCount" class="text-3xl font-extrabold text-navy-950">0</h3>
+                                            <span id="kpiGroupCapacity" class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-white/50 text-navy-950">0/10</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Carte 2 : Total Cotisé (Dégradé Bleu Nuit) -->
+                                <div onclick="navigateTo('cotisations')" class="sm:col-span-7 kpi-card-navy rounded-[28px] p-6 cursor-pointer hover:scale-[1.01] transition flex flex-col justify-between min-h-[168px] relative overflow-hidden">
+                                    <div class="flex items-start justify-between">
+                                        <span class="px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold text-gold-300">
+                                            Caisse Vérifiée
+                                        </span>
+                                        <div class="w-12 h-12 rounded-2xl bg-gold-400/20 border border-gold-400/40 flex items-center justify-center text-gold-300 shadow">
+                                            <i class="fa-solid fa-coins text-xl"></i>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <p class="text-xs font-semibold text-white/80">Total Cotisé (FCFA)</p>
+                                        <h3 id="kpiTotalCollected" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-1">0 FCFA</h3>
+                                        <p id="kpiFatimaMargin" class="text-[11px] text-gold-300 font-semibold mt-1">Marge gestion (10%) : 0 FCFA</p>
+                                    </div>
+                                </div>
+
+                                <!-- Carte 3 : En attente de validation (Verre Blanc Perle) -->
+                                <div onclick="navigateTo('inscriptions')" class="sm:col-span-6 kpi-card-pearl rounded-[28px] p-6 cursor-pointer hover:scale-[1.01] transition flex flex-col justify-between min-h-[156px]">
+                                    <div class="flex items-center justify-between">
+                                        <div class="w-12 h-12 rounded-2xl bg-navy-900/10 border border-navy-900/15 flex items-center justify-center text-navy-900">
+                                            <i class="fa-solid fa-id-card text-xl"></i>
+                                        </div>
+                                        <span class="text-[11px] font-extrabold text-navy-800 bg-navy-900/10 px-3 py-1 rounded-full">Vérifier CNI →</span>
+                                    </div>
+                                    <div class="mt-4 flex items-end justify-between">
+                                        <div>
+                                            <p class="text-xs font-bold text-slate-600">En attente de</p>
+                                            <p class="text-xs font-bold text-slate-600">validation</p>
+                                        </div>
+                                        <h3 id="kpiPendingDocs" class="text-3xl font-extrabold text-navy-950">0</h3>
+                                    </div>
+                                </div>
+
+                                <!-- Carte 4 : Retards de paiement (Verre Ambré) -->
+                                <div onclick="navigateTo('cotisations')" class="sm:col-span-6 kpi-card-amber rounded-[28px] p-6 cursor-pointer hover:scale-[1.01] transition flex flex-col justify-between min-h-[156px]">
+                                    <div class="flex items-center justify-between">
+                                        <div class="w-12 h-12 rounded-2xl bg-amber-900/15 border border-amber-900/20 flex items-center justify-center text-amber-950">
+                                            <i class="fa-solid fa-circle-exclamation text-xl"></i>
+                                        </div>
+                                        <span class="text-[11px] font-extrabold text-amber-950 bg-white/50 px-3 py-1 rounded-full">Suivi jour</span>
+                                    </div>
+                                    <div class="mt-4 flex items-end justify-between">
+                                        <div>
+                                            <p class="text-xs font-bold text-amber-950/85">Retards de</p>
+                                            <p class="text-xs font-bold text-amber-950/85">paiement</p>
+                                        </div>
+                                        <h3 id="kpiLatePayments" class="text-3xl font-extrabold text-amber-950">0</h3>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- BARRE D'ACTIONS RAPIDES FLOTTANTE EN BAS (FIDÈLE À LA MAQUETTE) -->
+                            <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                                <div class="flex items-center gap-2 bg-white/65 backdrop-blur-xl px-4 py-2.5 rounded-full border border-white shadow-sm">
+                                    <button onclick="navigateTo('inscriptions'); switchInscriptionTab('form');" class="w-9 h-9 rounded-full bg-navy-900 text-gold-400 hover:scale-105 transition flex items-center justify-center" title="Nouvelle inscription">
+                                        <i class="fa-solid fa-user-plus text-xs"></i>
+                                    </button>
+                                    <button onclick="navigateTo('cotisations')" class="w-9 h-9 rounded-full bg-white text-navy-900 hover:scale-105 transition flex items-center justify-center border border-slate-200" title="Enregistrer cotisation">
+                                        <i class="fa-solid fa-hand-holding-dollar text-xs"></i>
+                                    </button>
+                                    <button onclick="navigateTo('rapports')" class="w-9 h-9 rounded-full bg-white text-navy-900 hover:scale-105 transition flex items-center justify-center border border-slate-200" title="Exporter bilan">
+                                        <i class="fa-solid fa-file-export text-xs"></i>
+                                    </button>
+                                    <span class="text-xs font-bold text-navy-900 pl-2 pr-1 hidden sm:inline">Actions rapides Fatima</span>
+                                </div>
+
+                                <button onclick="navigateTo('cotisations')" class="px-6 py-3 rounded-full kpi-card-navy text-white text-xs font-extrabold tracking-wide hover:opacity-95 transition flex items-center gap-2">
+                                    <span>Nouvel Encaissement</span>
+                                    <i class="fa-solid fa-arrow-right text-gold-400"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- COLONNE DROITE (4 cols) : JAUGE CIRCULAIRE 90% + PROCHAINS BÉNÉFICIAIRES -->
+                        <div class="xl:col-span-4 flex flex-col gap-5">
+                            <!-- Carte Jauge Circulaire 90% -->
+                            <div class="glass-panel rounded-[28px] p-6 flex flex-col items-center justify-center text-center">
+                                <div class="relative w-36 h-36 flex items-center justify-center">
+                                    <svg class="w-36 h-36 transform -rotate-90" viewBox="0 0 120 120">
+                                        <circle cx="60" cy="60" r="48" stroke="rgba(255,255,255,0.7)" stroke-width="14" fill="none" />
+                                        <circle id="gaugeProgressCircle" cx="60" cy="60" r="48" stroke="url(#goldNavyGrad)" stroke-width="14"
+                                            stroke-dasharray="301.59" stroke-dashoffset="30.15" stroke-linecap="round" fill="none" />
+                                        <defs>
+                                            <linearGradient id="goldNavyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#D4AF37" />
+                                                <stop offset="100%" stop-color="#0A192F" />
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                        <span id="gaugePercentText" class="text-2xl font-extrabold text-navy-950">90%</span>
+                                        <span class="text-[10px] font-bold text-slate-600 uppercase">Part Membre</span>
+                                    </div>
+                                </div>
+                                <p id="gaugeStepLabel" class="text-xs font-extrabold text-navy-900 mt-3">de collecte • Étape 8 sur 10</p>
+                                <p id="gaugeAmountSubtitle" class="text-[11px] text-slate-600 mt-0.5">Réception prévue : 50 000 FCFA</p>
+                            </div>
+
+                            <!-- Carte Prochains Bénéficiaires & Dernières Transactions -->
+                            <div class="glass-panel rounded-[28px] p-5 flex-1 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h4 class="text-xs font-extrabold uppercase tracking-wider text-navy-900">Prochains bénéficiaires</h4>
+                                        <button type="button" onclick="navigateTo('beneficiaires')" class="text-[11px] font-bold text-navy-800 hover:underline">Voir tours</button>
+                                    </div>
+                                    <div id="dashboardBeneficiariesList" class="space-y-2.5"></div>
+                                </div>
+
+                                <div class="mt-4 pt-3 border-t border-white/60">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-[11px] font-extrabold text-navy-900">Dernières Transactions :</span>
+                                        <button type="button" onclick="navigateTo('cotisations')" class="text-[10px] font-bold text-navy-700 hover:underline">Reçus PDF</button>
+                                    </div>
+                                    <div id="dashboardMiniTxList" class="space-y-1.5"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- VUE 2 : INSCRIPTIONS & VALIDATION MANUELLE (SECTION 5.2)      -->
+            <!-- ============================================================= -->
+            <section id="view-inscriptions" class="view-section hidden space-y-5 animate-fade-in">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="inline-flex p-1.5 rounded-full glass-panel">
+                        <button onclick="switchInscriptionTab('list')" id="tabBtn-list" class="px-4 py-2 rounded-full text-xs font-extrabold bg-navy-900 text-white transition">
+                            Dossiers à vérifier (<span id="pendingTabCount">0</span>)
+                        </button>
+                        <button onclick="switchInscriptionTab('form')" id="tabBtn-form" class="px-4 py-2 rounded-full text-xs font-bold text-navy-900 hover:bg-white/50 transition">
+                            + Nouvelle inscription
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Liste des dossiers -->
+                <div id="inscriptionSub-list" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+
+                <!-- Formulaire complet d'inscription -->
+                <div id="inscriptionSub-form" class="hidden glass-panel rounded-[30px] p-6 sm:p-8">
+                    <h3 class="text-lg font-extrabold text-navy-900 mb-1">Formulaire d'Adhésion — FATONTINE CASH</h3>
+                    <p class="text-xs text-slate-600 mb-6">Validation manuelle obligatoire par Fatima après contrôle des pièces d'identité et du témoin.</p>
+
+                    <form id="newInscriptionForm" class="space-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-navy-900 mb-1">Nom *</label>
+                                <input type="text" name="nom" placeholder="Ex: KOUASSI" required class="w-full px-4 py-2.5 bg-white/80 border border-white rounded-2xl text-sm outline-none focus:ring-2 focus:ring-gold-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-navy-900 mb-1">Prénoms *</label>
+                                <input type="text" name="prenoms" placeholder="Ex: Aya Marie" required class="w-full px-4 py-2.5 bg-white/80 border border-white rounded-2xl text-sm outline-none focus:ring-2 focus:ring-gold-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-navy-900 mb-1">Sexe *</label>
+                                <select name="sexe" class="w-full px-4 py-2.5 bg-white/80 border border-white rounded-2xl text-sm outline-none">
+                                    <option value="Féminin">Féminin</option>
+                                    <option value="Masculin">Masculin</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-navy-900 mb-1">Date de naissance *</label>
+                                <input type="date" name="dateNaissance" required class="w-full px-4 py-2.5 bg-white/80 border border-white rounded-2xl text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-navy-900 mb-1">Téléphone (+225) *</label>
+                                <input type="tel" name="telephone" placeholder="+225 07 00 00 00 00" required class="w-full px-4 py-2.5 bg-white/80 border border-white rounded-2xl text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-navy-900 mb-1">Adresse / Résidence *</label>
+                                <input type="text" name="adresse" placeholder="Ex: Abidjan, Cocody" required class="w-full px-4 py-2.5 bg-white/80 border border-white rounded-2xl text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-navy-900 mb-1">Pièce justificative *</label>
+                                <select name="typePiece" class="w-full px-4 py-2.5 bg-white/80 border border-white rounded-2xl text-sm outline-none">
+                                    <option value="CNI Ivoirienne">Carte Nationale d'Identité (CNI)</option>
+                                    <option value="Extrait d'acte de naissance">Extrait d'acte de naissance</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-navy-900 mb-1">Numéro CNI / Extrait *</label>
+                                <input type="text" name="numeroPiece" placeholder="Ex: CI00458921" required class="w-full px-4 py-2.5 bg-white/80 border border-white rounded-2xl text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-navy-900 mb-1">Formule souhaitée *</label>
+                                <select name="formuleSouhaitee" id="inscriptionFormuleSelect" class="w-full px-4 py-2.5 bg-white/80 border border-white rounded-2xl text-sm outline-none"></select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-navy-900 mb-1">Nom & Prénoms du Témoin *</label>
+                                <input type="text" name="temoinNom" placeholder="Ex: Koné Ibrahim" required class="w-full px-4 py-2.5 bg-white/80 border border-white rounded-2xl text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-navy-900 mb-1">Téléphone du Témoin *</label>
+                                <input type="tel" name="temoinTel" placeholder="+225 05 00 00 00 00" required class="w-full px-4 py-2.5 bg-white/80 border border-white rounded-2xl text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-navy-900 mb-1">Photo & Scan Pièce</label>
+                                <label class="flex items-center justify-center gap-2 px-4 py-2.5 bg-white/80 border border-dashed border-navy-800 rounded-2xl text-xs font-bold text-navy-900 cursor-pointer">
+                                    <i class="fa-solid fa-camera text-gold-600"></i>
+                                    <span id="fileUploadLabel">Joindre CNI + Photo</span>
+                                    <input type="file" class="hidden" onchange="document.getElementById('fileUploadLabel').textContent = 'Pièces jointes ✓'">
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2.5 bg-white/60 p-3.5 rounded-2xl border border-white">
+                            <input type="checkbox" id="consentArtci" required checked class="rounded text-navy-900">
+                            <label for="consentArtci" class="text-xs text-navy-900 font-medium">
+                                Consentement loi ivoirienne n° 2013-450 (ARTCI) : j'autorise la vérification et le stockage sécurisé de mes pièces d'identité par FATONTINE CASH.
+                            </label>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-6 py-3 rounded-full kpi-card-navy text-white font-bold text-xs flex items-center gap-2">
+                                <i class="fa-solid fa-paper-plane text-gold-400"></i>
+                                <span>Enregistrer la demande d'adhésion</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- VUE 3 : MEMBRES & GROUPES (SECTIONS 5.3, 5.4, 5.5)            -->
+            <!-- ============================================================= -->
+            <section id="view-membres-groupes" class="view-section hidden space-y-6 animate-fade-in">
+                <!-- Grille des 8 formules officielles -->
+                <div class="glass-panel-dark rounded-[28px] p-6 text-white">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                        <div>
+                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-gold-300">Grille Officielle FATONTINE CASH</span>
+                            <h3 class="text-base font-extrabold">Les 8 Formules de Cotisation (Cycles de 10 membres)</h3>
+                        </div>
+                        <button onclick="openCreateGroupModal()" class="px-4 py-2 rounded-full bg-gold-400 hover:bg-gold-300 text-navy-950 font-extrabold text-xs flex items-center gap-1.5 w-fit transition">
+                            <i class="fa-solid fa-plus"></i> Nouveau Groupe
+                        </button>
+                    </div>
+                    <div id="formulasGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+                </div>
+
+                <!-- Cartes des Groupes -->
+                <div id="groupsCardsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+
+                <!-- Répertoire des Membres Validés -->
+                <div class="glass-panel rounded-[28px] overflow-hidden">
+                    <div class="p-5 border-b border-white/60 flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <h3 class="text-sm font-extrabold text-navy-950">Répertoire des Membres Validés</h3>
+                        <input type="text" id="memberSearchInput" oninput="renderMembers()" placeholder="Rechercher nom, téléphone..."
+                            class="w-full sm:w-64 px-4 py-2 bg-white/80 border border-white rounded-full text-xs font-semibold outline-none">
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-white/40 text-[11px] font-extrabold uppercase text-navy-900 border-b border-white/60">
+                                    <th class="py-3 px-4">Membre</th>
+                                    <th class="py-3 px-4">Contact & Témoin</th>
+                                    <th class="py-3 px-4">Groupe</th>
+                                    <th class="py-3 px-4">Total Cotisé</th>
+                                    <th class="py-3 px-4 text-right">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody id="membersTableBody" class="divide-y divide-white/40 text-xs"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- VUE 4 : COTISATIONS, WAVE & REÇUS (SECTIONS 5.6, 5.8, 5.9)    -->
+            <!-- ============================================================= -->
+            <section id="view-cotisations" class="view-section hidden space-y-6 animate-fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Formulaire d'encaissement -->
+                    <div class="lg:col-span-5 glass-panel rounded-[28px] p-6 h-fit">
+                        <h3 class="text-base font-extrabold text-navy-950 mb-1">Enregistrer un Paiement</h3>
+                        <p class="text-xs text-slate-600 mb-4">Génère un reçu certifié PDF & partageable sur WhatsApp.</p>
+
+                        <form id="paymentForm" class="space-y-3.5">
+                            <div>
+                                <label class="block text-xs font-bold text-navy-900 mb-1">Groupe *</label>
+                                <select id="payGroupSelect" onchange="updatePaymentMemberOptions()" required
+                                    class="w-full px-4 py-2.5 bg-white/85 border border-white rounded-2xl text-xs font-bold text-navy-900 outline-none"></select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-navy-900 mb-1">Membre cotisant *</label>
+                                <select id="payMemberSelect" required
+                                    class="w-full px-4 py-2.5 bg-white/85 border border-white rounded-2xl text-xs font-bold text-navy-900 outline-none"></select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-navy-900 mb-1">Montant (FCFA)</label>
+                                    <input type="number" id="payAmountInput" readonly
+                                        class="w-full px-4 py-2.5 bg-gold-200/70 border border-white rounded-2xl text-xs font-extrabold text-navy-950">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-navy-900 mb-1">Date</label>
+                                    <input type="date" id="payDateInput" required
+                                        class="w-full px-4 py-2.5 bg-white/85 border border-white rounded-2xl text-xs font-semibold">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-navy-900 mb-1">Mode de paiement *</label>
+                                <select id="payMethodSelect" onchange="toggleWaveRefField()"
+                                    class="w-full px-4 py-2.5 bg-white/85 border border-white rounded-2xl text-xs font-bold text-navy-900 outline-none">
+                                    <option value="Wave">Wave Mobile Money (Vérifié)</option>
+                                    <option value="Espèces">Espèces</option>
+                                </select>
+                            </div>
+
+                            <div id="waveRefContainer" class="p-3 rounded-2xl bg-sky-500/15 border border-sky-300/60">
+                                <label class="block text-[11px] font-extrabold text-sky-950 mb-1">ID Transaction Wave (Obligatoire) *</label>
+                                <input type="text" id="payWaveRef" placeholder="Ex: T_CI89451203"
+                                    class="w-full px-3 py-2 bg-white/90 border border-white rounded-xl text-xs font-mono uppercase outline-none">
+                            </div>
+
+                            <button type="submit" class="w-full py-3 rounded-full kpi-card-navy text-white font-extrabold text-xs flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-receipt text-gold-400"></i>
+                                <span>Valider & Générer le Reçu</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Retards + Journal des cotisations -->
+                    <div class="lg:col-span-7 space-y-5">
+                        <!-- Liste des retards du jour -->
+                        <div class="glass-panel rounded-[28px] p-5">
+                            <h4 class="text-xs font-extrabold uppercase tracking-wider text-navy-900 mb-3 flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                                Membres en retard aujourd'hui
+                            </h4>
+                            <div id="latePaymentsList" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+                        </div>
+
+                        <!-- Historique complet -->
+                        <div class="glass-panel rounded-[28px] overflow-hidden">
+                            <div class="p-5 border-b border-white/60 flex items-center justify-between">
+                                <h4 class="text-xs font-extrabold uppercase tracking-wider text-navy-900">Journal des Cotisations</h4>
+                                <span id="totalCotisationsBadge" class="px-3 py-1 rounded-full bg-navy-900 text-gold-400 text-xs font-extrabold">0 FCFA</span>
+                            </div>
+                            <div class="overflow-x-auto max-h-[380px]">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-white/40 text-[10px] font-extrabold uppercase text-navy-900 border-b border-white/60">
+                                            <th class="py-3 px-4">Reçu / Date</th>
+                                            <th class="py-3 px-4">Membre</th>
+                                            <th class="py-3 px-4">Mode</th>
+                                            <th class="py-3 px-4">Montant</th>
+                                            <th class="py-3 px-4 text-right">PDF</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="cotisationsTableBody" class="divide-y divide-white/40 text-xs"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- VUE 5 : BÉNÉFICIAIRES & TOURS (SECTION 5.7)                   -->
+            <!-- ============================================================= -->
+            <section id="view-beneficiaires" class="view-section hidden space-y-5 animate-fade-in">
+                <div class="glass-panel rounded-[28px] overflow-hidden">
+                    <div class="p-5 border-b border-white/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-base font-extrabold text-navy-950">Calendrier des Bénéficiaires (Tours tous les 10 jours)</h3>
+                            <p class="text-xs text-slate-600">Chaque modification d'ordre est journalisée avec sa justification.</p>
+                        </div>
+                        <select id="benefGroupFilter" onchange="renderBeneficiaries()" class="px-4 py-2 rounded-full bg-white/85 text-xs font-extrabold text-navy-900 border border-white outline-none"></select>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-white/40 text-[11px] font-extrabold uppercase text-navy-900 border-b border-white/60">
+                                    <th class="py-3 px-4">Tour</th>
+                                    <th class="py-3 px-4">Bénéficiaire</th>
+                                    <th class="py-3 px-4">Date prévue</th>
+                                    <th class="py-3 px-4">Réception (90%)</th>
+                                    <th class="py-3 px-4">Statut</th>
+                                    <th class="py-3 px-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="beneficiariesTableBody" class="divide-y divide-white/40 text-xs"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-[24px] p-5">
+                    <h4 class="text-xs font-extrabold uppercase text-navy-900 mb-2">Journal des justifications d'ordre de passage</h4>
+                    <div id="orderAuditLog" class="space-y-2 text-xs text-navy-900"></div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- VUE 6 : RAPPORTS & EXPORTS (SECTION 7)                        -->
+            <!-- ============================================================= -->
+            <section id="view-rapports" class="view-section hidden space-y-6 animate-fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="glass-panel rounded-[28px] p-6 flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-sm font-extrabold text-navy-950">Export Excel / CSV Cotisations</h4>
+                            <p class="text-xs text-slate-600 mt-1">Toutes les opérations avec références uniques et ID Wave.</p>
+                        </div>
+                        <button onclick="exportCSV('cotisations')" class="mt-5 py-2.5 px-4 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition">
+                            <i class="fa-solid fa-file-excel mr-1.5"></i> Télécharger CSV
+                        </button>
+                    </div>
+
+                    <div class="glass-panel rounded-[28px] p-6 flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-sm font-extrabold text-navy-950">Bilan des Membres & Témoins</h4>
+                            <p class="text-xs text-slate-600 mt-1">Répertoire complet des membres validés et pièces vérifiées.</p>
+                        </div>
+                        <button onclick="exportCSV('membres')" class="mt-5 py-2.5 px-4 rounded-full kpi-card-navy text-white font-bold text-xs transition">
+                            <i class="fa-solid fa-users mr-1.5 text-gold-400"></i> Exporter Membres
+                        </button>
+                    </div>
+
+                    <div class="glass-panel rounded-[28px] p-6 flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-sm font-extrabold text-navy-950">Bilan Comptable PDF</h4>
+                            <p class="text-xs text-slate-600 mt-1">Synthèse des collectes (100%), distributions (90%) et marge Fatima (10%).</p>
+                        </div>
+                        <button onclick="printReport()" class="mt-5 py-2.5 px-4 rounded-full kpi-card-gold text-navy-950 font-extrabold text-xs transition">
+                            <i class="fa-solid fa-print mr-1.5"></i> Imprimer Bilan
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-[28px] p-6">
+                    <h3 class="text-sm font-extrabold text-navy-950 mb-4">Synthèse Comptable par Groupe (90% Bénéficiaire / 10% Gestion Fatima)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-white/40 text-[11px] font-extrabold uppercase text-navy-900 border-b border-white/60">
+                                    <th class="py-3 px-4">Groupe</th>
+                                    <th class="py-3 px-4">Cotisation / Jour</th>
+                                    <th class="py-3 px-4">Collecte Brute (100%)</th>
+                                    <th class="py-3 px-4">Fonds Bénéficiaires (90%)</th>
+                                    <th class="py-3 px-4">Commission Fatima (10%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="financialSummaryBody" class="divide-y divide-white/40 text-xs"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- 3. MODALE DE REÇU OFFICIEL FATONTINE CASH (PDF & WHATSAPP)            -->
+    <!-- ===================================================================== -->
+    <div id="receiptModal" class="fixed inset-0 bg-navy-950/75 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-[32px] max-w-md w-full shadow-2xl overflow-hidden animate-fade-in border border-white">
+            <div id="receiptPrintableArea" class="p-6 sm:p-8 bg-white">
+                <div class="flex items-center justify-between border-b-2 border-navy-900 pb-4">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-10 h-10 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center">
+                            <i class="fa-solid fa-coins text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-base text-navy-900 leading-none">FATONTINE <span class="text-gold-600">CASH</span></h3>
+                            <p class="text-[10px] text-slate-500 mt-0.5">La tontine, en toute simplicité.</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="px-2.5 py-1 rounded-lg bg-navy-900 text-gold-400 text-[10px] font-extrabold uppercase">Reçu Officiel</span>
+                        <p id="recNumber" class="text-xs font-mono font-bold text-slate-700 mt-1">REC-0000</p>
+                    </div>
+                </div>
+
+                <div class="my-5 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Montant Cotisé Encaissé</span>
+                    <div id="recAmount" class="text-3xl font-extrabold text-navy-900 mt-1">0 FCFA</div>
+                    <div class="mt-2 inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-extrabold">
+                        <i class="fa-solid fa-circle-check"></i> PAIEMENT VALIDÉ PAR FATIMA
+                    </div>
+                </div>
+
+                <div class="space-y-2.5 text-xs border-t border-b border-dashed border-slate-300 py-4">
+                    <div class="flex justify-between"><span class="text-slate-500">Membre :</span><span id="recMember" class="font-bold text-navy-900">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Téléphone :</span><span id="recPhone" class="font-semibold text-slate-700">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Groupe :</span><span id="recGroup" class="font-bold text-navy-900">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Formule :</span><span id="recFormula" class="font-semibold text-gold-600">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Date :</span><span id="recDate" class="font-semibold text-slate-700">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Mode / Réf Wave :</span><span id="recMethod" class="font-mono font-bold text-slate-800">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Réf. Opération :</span><span id="recOpRef" class="font-mono text-slate-600">-</span></div>
+                </div>
+
+                <div class="mt-4 flex items-center justify-between text-[11px] text-slate-400">
+                    <div>
+                        <p class="font-bold text-navy-900">Administratrice : Fatima</p>
+                        <p>Côte d'Ivoire • Devise : FCFA</p>
+                    </div>
+                    <div class="w-14 h-14 rounded-full border-2 border-gold-500 flex flex-col items-center justify-center text-gold-600 font-extrabold text-[8px] uppercase transform -rotate-12">
+                        <span>CERTIFIÉ</span>
+                        <span>PAYÉ</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 grid grid-cols-2 gap-2.5 no-print">
+                <button onclick="saveReceiptPdf()" class="py-2.5 px-3 rounded-full bg-navy-900 hover:bg-navy-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-file-pdf text-gold-400"></i>
+                    <span>Enregistrer PDF</span>
+                </button>
+                <button onclick="printReceipt()" class="py-2.5 px-3 rounded-full bg-white hover:bg-slate-100 border border-slate-300 text-navy-900 font-bold text-xs flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Imprimer</span>
+                </button>
+                <button id="whatsappShareBtn" class="py-2.5 px-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition">
+                    <i class="fa-brands fa-whatsapp text-base"></i>
+                    <span>WhatsApp</span>
+                </button>
+                <button onclick="closeReceiptModal()" class="py-2.5 px-3 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs transition">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- 4. MODALES CRÉATION GROUPE & MODIFICATION ORDRE TOUR                  -->
+    <!-- ===================================================================== -->
+    <div id="createGroupModal" class="fixed inset-0 bg-navy-950/75 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-[30px] max-w-md w-full p-6 shadow-2xl animate-fade-in">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <h3 class="text-base font-extrabold text-navy-900">Créer un Groupe (10 Participants)</h3>
+                <button onclick="closeCreateGroupModal()" class="text-slate-400 hover:text-navy-900"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="createGroupForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nom du Groupe *</label>
+                    <input type="text" id="newGroupName" placeholder="Ex: Groupe C - 2 200 FCFA" required
+                        class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Formule *</label>
+                    <select id="newGroupFormula" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm outline-none"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Date de démarrage *</label>
+                    <input type="date" id="newGroupStartDate" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm outline-none">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeCreateGroupModal()" class="px-4 py-2.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">Annuler</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-full bg-navy-900 text-white text-xs font-bold">Créer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="swapOrderModal" class="fixed inset-0 bg-navy-950/75 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-[30px] max-w-md w-full p-6 shadow-2xl animate-fade-in">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <h3 class="text-base font-extrabold text-navy-900">Modifier l'Ordre de Passage</h3>
+                <button onclick="closeSwapModal()" class="text-slate-400 hover:text-navy-900"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="swapOrderForm" class="space-y-4">
+                <input type="hidden" id="swapBenId">
+                <p id="swapMemberLabel" class="text-xs font-bold text-navy-900 bg-gold-200/60 p-3 rounded-2xl"></p>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nouveau tour (1 à 10) *</label>
+                    <input type="number" id="swapNewTour" min="1" max="10" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Justification obligatoire *</label>
+                    <textarea id="swapReason" rows="3" placeholder="Ex: Accord mutuel validé par Fatima..." required
+                        class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm outline-none"></textarea>
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="closeSwapModal()" class="px-4 py-2.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">Annuler</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-full bg-navy-900 text-white text-xs font-bold">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- 5. MODALE SAUVEGARDE / RESTAURATION PC (COPIER SUR CLÉ USB)          -->
+    <!-- ===================================================================== -->
+    <div id="backupModal" class="fixed inset-0 bg-navy-950/75 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-[30px] max-w-lg w-full p-6 sm:p-7 shadow-2xl animate-fade-in my-auto">
+            <div class="flex items-start justify-between border-b border-slate-100 pb-3 mb-4">
+                <div>
+                    <h3 class="text-base font-extrabold text-navy-900">Sauvegarde & Restauration PC</h3>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Vos données sont enregistrées sur ce PC et copiées automatiquement chaque jour.</p>
+                </div>
+                <button onclick="closeBackupModal()" class="text-slate-400 hover:text-navy-900 p-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="rounded-2xl bg-navy-900 text-white p-4 text-[11px] space-y-2">
+                <div class="flex justify-between gap-3">
+                    <span class="text-white/55 shrink-0">Dossier de données</span>
+                    <span id="storageDirLabel" class="font-mono text-[10px] text-gold-200 break-all text-right">—</span>
+                </div>
+                <div class="flex justify-between gap-3"><span class="text-white/55">Base de données</span><span id="storageDbState" class="font-bold text-right">—</span></div>
+                <div class="flex justify-between gap-3"><span class="text-white/55">Dernière sauvegarde</span><span id="storageLastSave" class="font-bold text-right">—</span></div>
+                <div class="flex justify-between gap-3"><span class="text-white/55">Contenu actuel</span><span id="storageCounts" class="font-bold text-right">—</span></div>
+                <div class="flex justify-between gap-3"><span class="text-white/55">Copies automatiques</span><span id="storageBackupCount" class="font-bold text-gold-300">—</span></div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-4">
+                <button onclick="exportBackupToUsb()" class="py-3 px-4 rounded-2xl kpi-card-navy text-white text-xs font-extrabold flex items-center gap-2.5 justify-start transition hover:opacity-95">
+                    <i class="fa-solid fa-usb text-gold-400"></i>
+                    <span class="text-left leading-tight">Exporter sur clé USB<br><span class="text-[9px] font-semibold text-white/60">Copie chiffrée (.fatbackup)</span></span>
+                </button>
+                <button onclick="restoreFromBackup()" class="py-3 px-4 rounded-2xl bg-white border border-navy-900/15 hover:border-navy-900/35 text-navy-900 text-xs font-extrabold flex items-center gap-2.5 justify-start transition">
+                    <i class="fa-solid fa-rotate-left text-gold-600"></i>
+                    <span class="text-left leading-tight">Restaurer une sauvegarde<br><span class="text-[9px] font-semibold text-slate-500">Depuis une clé USB</span></span>
+                </button>
+                <button onclick="saveNowToDisk()" class="py-3 px-4 rounded-2xl bg-white border border-navy-900/15 hover:border-navy-900/35 text-navy-900 text-xs font-extrabold flex items-center gap-2.5 justify-start transition">
+                    <i class="fa-solid fa-floppy-disk text-emerald-700"></i>
+                    <span class="text-left leading-tight">Sauvegarder maintenant<br><span class="text-[9px] font-semibold text-slate-500">Écriture immédiate</span></span>
+                </button>
+                <button onclick="openDataFolder()" class="py-3 px-4 rounded-2xl bg-white border border-navy-900/15 hover:border-navy-900/35 text-navy-900 text-xs font-extrabold flex items-center gap-2.5 justify-start transition">
+                    <i class="fa-solid fa-folder-open text-navy-800"></i>
+                    <span class="text-left leading-tight">Ouvrir le dossier<br><span class="text-[9px] font-semibold text-slate-500">%APPDATA%/FATONTINE_CASH</span></span>
+                </button>
+            </div>
+
+            <div class="mt-4 p-3 rounded-2xl bg-amber-50 border border-amber-200 text-[10.5px] text-amber-900 leading-relaxed flex items-start gap-2">
+                <i class="fa-solid fa-lock mt-0.5 text-amber-700"></i>
+                <span>L'export USB est chiffré (AES-256) et protégé par un mot de passe. Sans ce mot de passe, la restauration est impossible : conservez-le précieusement.</span>
+            </div>
+
+            <div class="flex justify-end pt-4">
+                <button onclick="closeBackupModal()" class="px-5 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE MOT DE PASSE (CHIFFREMENT DES SAUVEGARDES) -->
+    <div id="passwordModal" class="fixed inset-0 bg-navy-950/80 backdrop-blur-md z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-[30px] max-w-sm w-full p-6 shadow-2xl animate-fade-in">
+            <h3 id="passwordModalTitle" class="text-base font-extrabold text-navy-900">Mot de passe</h3>
+            <p id="passwordModalMessage" class="text-xs text-slate-600 mt-1 mb-4"></p>
+            <div class="relative">
+                <input type="password" id="passwordModalInput" autocomplete="off" placeholder="6 caractères minimum"
+                    class="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold text-navy-900 outline-none focus:ring-2 focus:ring-gold-500">
+                <button type="button" onclick="togglePasswordModalVisibility()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-navy-900">
+                    <i id="passwordModalEye" class="fa-solid fa-eye"></i>
+                </button>
+            </div>
+            <p id="passwordModalError" class="hidden mt-2 text-[11px] font-bold text-red-600">Le mot de passe doit contenir au moins 6 caractères.</p>
+            <div class="flex justify-end gap-2 pt-4">
+                <button type="button" onclick="resolvePassword(null)" class="px-4 py-2.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">Annuler</button>
+                <button type="button" onclick="submitPasswordModal()" class="px-5 py-2.5 rounded-full bg-navy-900 text-white text-xs font-bold">Valider</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- JAVASCRIPT APPLICATIF                                                 -->
+    <!-- ===================================================================== -->
+    <script>
+        const FORMULAS = [
+            { id: 'F1', daily: 550, reception: 50000, label: '550 FCFA / jour → 50 000 FCFA' },
+            { id: 'F2', daily: 1100, reception: 100000, label: '1 100 FCFA / jour → 100 000 FCFA' },
+            { id: 'F3', daily: 2200, reception: 200000, label: '2 200 FCFA / jour → 200 000 FCFA' },
+            { id: 'F4', daily: 4400, reception: 400000, label: '4 400 FCFA / jour → 400 000 FCFA' },
+            { id: 'F5', daily: 5500, reception: 500000, label: '5 500 FCFA / jour → 500 000 FCFA' },
+            { id: 'F6', daily: 11000, reception: 1000000, label: '11 000 FCFA / jour → 1 000 000 FCFA' },
+            { id: 'F7', daily: 22000, reception: 2000000, label: '22 000 FCFA / jour → 2 000 000 FCFA' },
+            { id: 'F8', daily: 33000, reception: 3000000, label: '33 000 FCFA / jour → 3 000 000 FCFA' }
+        ];
+
+        const TODAY_STR = new Date().toISOString().split('T')[0];
+
+        // État initial vide prêt pour la production et l'accueil des premiers utilisateurs réels
+        const DEFAULT_STATE = {
+            selectedGroupId: 'ALL',
+            updatedAt: '',
+            groups: [],
+            members: [],
+            inscriptions: [],
+            cotisations: [],
+            beneficiaries: [],
+            auditLogs: [
+                {
+                    date: new Date().toLocaleString('fr-FR'),
+                    text: 'Plateforme FATONTINE CASH initialisée à zéro pour les premiers utilisateurs réels en Côte d\'Ivoire.'
+                }
+            ]
+        };
+
+        const STORAGE_KEY = 'fatontine_liquid_glass_v1';
+        const desktopBridge = window.fatontine || null;
+        let diskWriteFailed = false;
+        let currentReceiptPayload = null;
+        let loginAttempts = 0;
+
+        let appState = loadState();
+
+        function normalizeState(parsed) {
+            const fallback = JSON.parse(JSON.stringify(DEFAULT_STATE));
+            if (!parsed || typeof parsed !== 'object') return fallback;
+            return {
+                selectedGroupId: parsed.selectedGroupId || 'ALL',
+                updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : '',
+                groups: Array.isArray(parsed.groups) ? parsed.groups : [],
+                members: Array.isArray(parsed.members) ? parsed.members : [],
+                inscriptions: Array.isArray(parsed.inscriptions) ? parsed.inscriptions : [],
+                cotisations: Array.isArray(parsed.cotisations) ? parsed.cotisations : [],
+                beneficiaries: Array.isArray(parsed.beneficiaries) ? parsed.beneficiaries : [],
+                auditLogs: Array.isArray(parsed.auditLogs) && parsed.auditLogs.length ? parsed.auditLogs : fallback.auditLogs
+            };
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    return normalizeState(JSON.parse(saved));
+                } catch (e) {
+                    console.error('Erreur chargement état FATONTINE CASH :', e);
+                }
+            }
+            return JSON.parse(JSON.stringify(DEFAULT_STATE));
+        }
+
+        function saveState() {
+            appState.updatedAt = new Date().toISOString();
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            } catch (e) {
+                console.error('Erreur sauvegarde locale FATONTINE CASH :', e);
+            }
+            persistToDisk();
+        }
+
+        // ---------------------------------------------------------------------
+        // PONT DESKTOP (ELECTRON) : BASE LOCALE %APPDATA%, SAUVEGARDES, PDF
+        // ---------------------------------------------------------------------
+        function persistToDisk() {
+            if (!desktopBridge) return;
+            desktopBridge.saveState(appState).then(res => {
+                if (res && res.ok) {
+                    diskWriteFailed = false;
+                    setDesktopSaveStatus(true, res.savedAt);
+                } else if (res && res.error) {
+                    notifyDiskError(res.error);
+                }
+            }).catch(err => notifyDiskError(err && err.message ? err.message : 'écriture impossible'));
+        }
+
+        function notifyDiskError(message) {
+            setDesktopSaveStatus(false);
+            if (!diskWriteFailed) {
+                diskWriteFailed = true;
+                showToast('Sauvegarde disque impossible : ' + message, 'error');
+            }
+        }
+
+        function setDesktopSaveStatus(ok, savedAt) {
+            const dot = document.querySelector('#desktopSaveStatus .dt-dot');
+            const label = document.getElementById('desktopSaveStatusText');
+            if (!dot || !label) return;
+            dot.classList.toggle('is-error', !ok);
+            label.textContent = ok
+                ? `Sauvegardé sur ce PC${savedAt ? ' • ' + new Date(savedAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}`
+                : 'Sauvegarde disque en erreur';
+        }
+
+        async function hydrateFromDesktop() {
+            if (!desktopBridge) return;
+            try {
+                const res = await desktopBridge.loadState();
+                if (!res || !res.ok || !res.state) {
+                    setDesktopSaveStatus(true);
+                    return;
+                }
+                const diskState = normalizeState(res.state);
+                const localUpdated = appState.updatedAt || '';
+                if (!localStorage.getItem(STORAGE_KEY) || (diskState.updatedAt || '') > localUpdated) {
+                    appState = diskState;
+                    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); } catch (e) {}
+                }
+                setDesktopSaveStatus(true, res.savedAt);
+            } catch (e) {
+                console.error('Lecture de la base locale impossible :', e);
+            }
+        }
+
+        async function setupDesktopMode() {
+            if (!desktopBridge) return;
+            document.body.classList.add('is-desktop');
+            try {
+                const info = await desktopBridge.getStorageInfo();
+                const label = document.getElementById('appVersionLabel');
+                if (label && info && info.version) label.textContent = `Version ${info.version} • FCFA`;
+                setDesktopSaveStatus(true, info && info.lastModified);
+            } catch (e) {
+                console.error('Informations de stockage indisponibles :', e);
+            }
+        }
+
+        function openBackupModal() {
+            if (!desktopBridge) {
+                showToast('La sauvegarde PC est disponible dans la version Windows de FATONTINE CASH.', 'error');
+                return;
+            }
+            document.getElementById('backupModal').classList.remove('hidden');
+            refreshStoragePanel();
+        }
+
+        function closeBackupModal() { document.getElementById('backupModal').classList.add('hidden'); }
+
+        async function refreshStoragePanel() {
+            if (!desktopBridge) return;
+            document.getElementById('storageCounts').textContent =
+                `${appState.groups.length} groupes • ${appState.members.length} membres • ${appState.cotisations.length} cotisations`;
+            try {
+                const info = await desktopBridge.getStorageInfo();
+                if (!info || !info.ok) throw new Error((info && info.error) || 'indisponible');
+                document.getElementById('storageDirLabel').textContent = info.dataDir;
+                document.getElementById('storageDbState').textContent = info.exists
+                    ? `OK • ${(info.sizeBytes / 1024).toFixed(1)} Ko`
+                    : 'Créée à la première sauvegarde';
+                document.getElementById('storageLastSave').textContent = info.lastModified
+                    ? new Date(info.lastModified).toLocaleString('fr-FR')
+                    : 'Aucune sauvegarde pour le moment';
+                document.getElementById('storageBackupCount').textContent = `${info.backupCount} fichier(s)`;
+            } catch (e) {
+                document.getElementById('storageDirLabel').textContent = 'Dossier indisponible';
+            }
+        }
+
+        let passwordResolver = null;
+
+        function askPassword(title, message) {
+            return new Promise(resolve => {
+                passwordResolver = resolve;
+                document.getElementById('passwordModalTitle').textContent = title;
+                document.getElementById('passwordModalMessage').textContent = message;
+                const input = document.getElementById('passwordModalInput');
+                input.value = '';
+                input.type = 'password';
+                document.getElementById('passwordModalEye').className = 'fa-solid fa-eye';
+                document.getElementById('passwordModalError').classList.add('hidden');
+                document.getElementById('passwordModal').classList.remove('hidden');
+                setTimeout(() => input.focus(), 60);
+            });
+        }
+
+        function resolvePassword(value) {
+            document.getElementById('passwordModal').classList.add('hidden');
+            if (passwordResolver) {
+                const resolver = passwordResolver;
+                passwordResolver = null;
+                resolver(value);
+            }
+        }
+
+        function submitPasswordModal() {
+            const value = document.getElementById('passwordModalInput').value;
+            if (value.length < 6) {
+                document.getElementById('passwordModalError').classList.remove('hidden');
+                return;
+            }
+            resolvePassword(value);
+        }
+
+        function togglePasswordModalVisibility() {
+            const input = document.getElementById('passwordModalInput');
+            const icon = document.getElementById('passwordModalEye');
+            input.type = input.type === 'password' ? 'text' : 'password';
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        }
+
+        async function exportBackupToUsb() {
+            if (!desktopBridge) return;
+            const password = await askPassword(
+                'Chiffrer la sauvegarde',
+                'Choisissez un mot de passe (6 caractères minimum). Il sera demandé lors de la restauration sur un autre PC.'
+            );
+            if (password === null) return;
+            const res = await desktopBridge.exportBackup({ state: appState, password });
+            if (res && res.canceled) return;
+            if (res && res.ok) {
+                showToast('Sauvegarde chiffrée créée. Copiez-la sur votre clé USB.');
+                refreshStoragePanel();
+                if (res.filePath) desktopBridge.showInFolder(res.filePath);
+            } else {
+                showToast((res && res.error) || 'Export de la sauvegarde impossible.', 'error');
+            }
+        }
+
+        async function restoreFromBackup() {
+            if (!desktopBridge) return;
+            const picked = await desktopBridge.pickBackup();
+            if (!picked || picked.canceled) return;
+            if (!picked.ok) {
+                showToast(picked.error || 'Fichier de sauvegarde invalide.', 'error');
+                return;
+            }
+
+            let password = null;
+            if (picked.encrypted) {
+                password = await askPassword(
+                    'Sauvegarde chiffrée',
+                    `Sauvegarde du ${picked.exportedAt ? new Date(picked.exportedAt).toLocaleString('fr-FR') : 'date inconnue'}. Saisissez le mot de passe utilisé lors de l'export.`
+                );
+                if (password === null) return;
+            }
+
+            const confirmed = window.confirm(
+                'La restauration va remplacer toutes les données actuelles de FATONTINE CASH.\n\n' +
+                'Une copie de sécurité est créée automatiquement avant l\'opération.\n\nContinuer ?'
+            );
+            if (!confirmed) return;
+
+            const res = await desktopBridge.restoreBackup({ filePath: picked.filePath, password });
+            if (!res || !res.ok) {
+                showToast((res && res.error) || 'Restauration impossible.', 'error');
+                return;
+            }
+            appState = normalizeState(res.state);
+            saveState();
+            refreshAllViews();
+            closeBackupModal();
+            showToast('Base de données restaurée depuis la sauvegarde.');
+        }
+
+        async function saveNowToDisk() {
+            if (!desktopBridge) return;
+            const res = await desktopBridge.saveState(appState);
+            if (res && res.ok) {
+                showToast('Base de données enregistrée sur ce PC.');
+                setDesktopSaveStatus(true, res.savedAt);
+                refreshStoragePanel();
+            } else {
+                showToast((res && res.error) || 'Sauvegarde impossible.', 'error');
+            }
+        }
+
+        async function openDataFolder() {
+            if (desktopBridge) await desktopBridge.openDataFolder();
+        }
+
+        async function saveReceiptPdf() {
+            if (!currentReceiptPayload) return;
+            if (!desktopBridge) {
+                showToast('Utilisez « Imprimer » puis « Enregistrer en PDF ».', 'error');
+                return;
+            }
+            const res = await desktopBridge.exportReceiptPdf(currentReceiptPayload);
+            if (res && res.canceled) return;
+            if (res && res.ok) {
+                showToast('Reçu PDF enregistré.');
+                if (res.filePath) desktopBridge.showInFolder(res.filePath);
+            } else {
+                showToast((res && res.error) || 'Génération du PDF impossible.', 'error');
+            }
+        }
+
+        function printReceipt() {
+            document.body.classList.add('printing-receipt');
+            window.print();
+            setTimeout(() => document.body.classList.remove('printing-receipt'), 2000);
+        }
+
+        function printReport() {
+            navigateTo('rapports');
+            document.body.classList.add('printing-report');
+            window.print();
+            setTimeout(() => document.body.classList.remove('printing-report'), 2000);
+        }
+
+        window.addEventListener('afterprint', () => {
+            document.body.classList.remove('printing-receipt', 'printing-report');
+        });
+
+        function resetDemoData() {
+            appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+            appState.auditLogs[0].date = new Date().toLocaleString('fr-FR');
+            saveState();
+            refreshAllViews();
+            showToast('Espace remis à zéro (0 membre, 0 opération) prêt pour vos premiers utilisateurs.');
+        }
+
+        function formatFCFA(amount) {
+            return new Intl.NumberFormat('fr-FR').format(Math.round(amount)) + ' FCFA';
+        }
+
+        function getFormula(id) { return FORMULAS.find(f => f.id === id) || FORMULAS[0]; }
+        function getGroup(id) { return appState.groups.find(g => g.id === id); }
+        function getMember(id) { return appState.members.find(m => m.id === id); }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const style = type === 'error'
+                ? 'bg-red-600/95 text-white border-red-300'
+                : 'kpi-card-navy text-white border-gold-400/70';
+            toast.className = `pointer-events-auto px-4 py-3 rounded-2xl border shadow-xl flex items-center gap-3 text-xs font-bold animate-fade-in ${style}`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check text-gold-400'}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 3400);
+        }
+
+        // ---------------------------------------------------------------------
+        // AUTHENTIFICATION
+        // ---------------------------------------------------------------------
+        function togglePasswordVisibility() {
+            const input = document.getElementById('loginPassword');
+            const icon = document.getElementById('eyeIcon');
+            input.type = input.type === 'password' ? 'text' : 'password';
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        }
+
+        function triggerPasswordReset() {
+            showToast('Lien de réinitialisation envoyé à fatima@fatontine.ci');
+        }
+
+        function quickDemoLogin() {
+            completeLogin();
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (loginAttempts >= 5) {
+                document.getElementById('loginAlertText').textContent = 'Accès bloqué temporairement après 5 tentatives.';
+                document.getElementById('loginAlert').classList.remove('hidden');
+                return;
+            }
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const pass = document.getElementById('loginPassword').value;
+            if (email === 'fatima@fatontine.ci' && pass.length >= 4) {
+                completeLogin();
+            } else {
+                loginAttempts++;
+                document.getElementById('loginAlertText').textContent = `Identifiants invalides (${loginAttempts}/5).`;
+                document.getElementById('loginAlert').classList.remove('hidden');
+            }
+        });
+
+        function completeLogin() {
+            loginAttempts = 0;
+            document.getElementById('loginAlert').classList.add('hidden');
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('appShell').classList.remove('hidden');
+            sessionStorage.setItem('fatontine_lg_auth', 'true');
+            initApp();
+            showToast('Bienvenue dans votre espace Liquid Glass, Fatima !');
+        }
+
+        function logout() {
+            sessionStorage.removeItem('fatontine_lg_auth');
+            document.getElementById('appShell').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+        }
+
+        // ---------------------------------------------------------------------
+        // NAVIGATION & INIT
+        // ---------------------------------------------------------------------
+        const VIEW_TITLES = {
+            'dashboard': 'Tableau de Bord',
+            'inscriptions': 'Inscriptions & Dossiers',
+            'membres-groupes': 'Membres & Groupes',
+            'cotisations': 'Cotisations & Reçus',
+            'beneficiaires': 'Bénéficiaires',
+            'rapports': 'Rapports & Exports'
+        };
+
+        function navigateTo(viewId) {
+            document.querySelectorAll('.view-section').forEach(s => s.classList.add('hidden'));
+            const target = document.getElementById(`view-${viewId}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.view === viewId) {
+                    btn.classList.add('nav-pill-active');
+                } else {
+                    btn.classList.remove('nav-pill-active');
+                }
+            });
+
+            document.getElementById('pageHeaderTitle').innerHTML =
+                `${VIEW_TITLES[viewId] || 'Tableau de Bord'} <span class="text-white/60 font-medium">/</span> <span class="text-gold-200">Fatima</span>`;
+
+            if (window.innerWidth < 1024 && !document.getElementById('sidebar').classList.contains('-translate-x-full')) {
+                toggleMobileSidebar();
+            }
+
+            refreshAllViews();
+        }
+
+        function toggleMobileSidebar() {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            document.getElementById('sidebarBackdrop').classList.toggle('hidden');
+        }
+
+        function initApp() {
+            document.getElementById('payDateInput').value = TODAY_STR;
+            document.getElementById('newGroupStartDate').value = TODAY_STR;
+
+            ['inscriptionFormuleSelect', 'newGroupFormula'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = FORMULAS.map(f => `<option value="${f.id}">${f.label}</option>`).join('');
+            });
+
+            navigateTo('dashboard');
+        }
+
+        function refreshAllViews() {
+            populateActiveGroupSelector();
+            renderDashboard();
+            renderInscriptions();
+            renderGroupsAndFormulas();
+            renderMembers();
+            renderCotisations();
+            renderBeneficiaries();
+            renderReports();
+        }
+
+        function populateActiveGroupSelector() {
+            const sel = document.getElementById('activeGroupSelector');
+            if (!sel) return;
+            sel.innerHTML = `<option value="ALL">Tous les groupes (${appState.groups.length})</option>` +
+                appState.groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+            sel.value = appState.selectedGroupId || 'ALL';
+        }
+
+        function onDashboardGroupChange() {
+            appState.selectedGroupId = document.getElementById('activeGroupSelector').value;
+            saveState();
+            renderDashboard();
+        }
+
+        // ---------------------------------------------------------------------
+        // RENDU TABLEAU DE BORD LIQUID GLASS
+        // ---------------------------------------------------------------------
+        function renderDashboard() {
+            const filterGroup = appState.selectedGroupId || 'ALL';
+
+            const filteredMembers = filterGroup === 'ALL'
+                ? appState.members
+                : appState.members.filter(m => m.groupId === filterGroup);
+
+            const filteredCotisations = filterGroup === 'ALL'
+                ? appState.cotisations
+                : appState.cotisations.filter(c => c.groupId === filterGroup);
+
+            const pendingCount = appState.inscriptions.filter(i => i.status === 'En attente').length;
+            document.getElementById('navPendingBadge').textContent = pendingCount;
+            document.getElementById('pendingTabCount').textContent = pendingCount;
+            document.getElementById('headerNotifDot').style.display = pendingCount > 0 ? 'block' : 'none';
+
+            // Afficher le guide de démarrage tant qu'aucun groupe ou membre réel n'est créé
+            const onboardingBanner = document.getElementById('emptyOnboardingBanner');
+            if (onboardingBanner) {
+                const isBrandNew = appState.groups.length === 0 && appState.members.length === 0 && appState.inscriptions.length === 0;
+                onboardingBanner.classList.toggle('hidden', !isBrandNew);
+            }
+
+            const totalCollected = filteredCotisations.reduce((s, c) => s + Number(c.amount), 0);
+            const marginFatima = Math.round(totalCollected * 0.10);
+
+            const paidTodayIds = new Set(appState.cotisations.filter(c => c.date === TODAY_STR).map(c => c.memberId));
+            const lateCount = filteredMembers.filter(m => m.status === 'Actif' && !paidTodayIds.has(m.id)).length;
+
+            document.getElementById('kpiMembersCount').textContent = filteredMembers.length;
+            document.getElementById('kpiGroupCapacity').textContent = filterGroup === 'ALL'
+                ? `${appState.groups.length} grp`
+                : `${filteredMembers.length}/10`;
+            document.getElementById('kpiTotalCollected').textContent = formatFCFA(totalCollected);
+            document.getElementById('kpiFatimaMargin').textContent = `Marge gestion (10%) : ${formatFCFA(marginFatima)}`;
+            document.getElementById('kpiPendingDocs').textContent = pendingCount;
+            document.getElementById('kpiLatePayments').textContent = lateCount;
+
+            // Jauge Circulaire : 90% part membre sur collecte théorique ou progression réelle
+            const activeGrp = filterGroup === 'ALL' ? appState.groups[0] : getGroup(filterGroup);
+            const step = activeGrp ? (activeGrp.step || 1) : 0;
+            const formula = activeGrp ? getFormula(activeGrp.formulaId) : FORMULAS[0];
+            const circle = document.getElementById('gaugeProgressCircle');
+            const circumference = 2 * Math.PI * 48; // ~301.59
+            const displayPct = activeGrp ? 90 : 0;
+            if (circle) {
+                circle.style.strokeDasharray = circumference.toFixed(2);
+                circle.style.strokeDashoffset = (circumference * (1 - displayPct / 100)).toFixed(2);
+            }
+            document.getElementById('gaugePercentText').textContent = `${displayPct}%`;
+            document.getElementById('gaugeStepLabel').textContent = activeGrp
+                ? `part bénéficiaire • Étape ${step} sur 10`
+                : 'aucun groupe actif • 0 / 10';
+            document.getElementById('gaugeAmountSubtitle').textContent = `Réception prévue : ${formatFCFA(formula.reception)}`;
+
+            // Prochains bénéficiaires (panneau droit)
+            const bens = appState.beneficiaries
+                .filter(b => filterGroup === 'ALL' || b.groupId === filterGroup)
+                .slice(0, 3);
+
+            document.getElementById('dashboardBeneficiariesList').innerHTML = bens.length === 0
+                ? `<div class="bg-white/55 px-3.5 py-3 rounded-2xl border border-white/75 text-xs text-slate-600 text-center">
+                        Aucun tour programmé pour l'instant. Validez des membres pour planifier les réceptions.
+                   </div>`
+                : bens.map(b => {
+                    const m = getMember(b.memberId);
+                    return `
+                        <div class="flex items-center justify-between bg-white/60 px-3 py-2 rounded-2xl border border-white/80 text-xs">
+                            <div class="flex items-center gap-2.5 truncate">
+                                <span class="w-7 h-7 rounded-full bg-navy-900 text-gold-300 font-extrabold text-[10px] flex items-center justify-center shrink-0">
+                                    ${m ? m.nom[0] + m.prenoms[0] : 'M'}
+                                </span>
+                                <span class="font-bold text-navy-950 truncate">${m ? m.nom + ' ' + m.prenoms : 'Membre'}</span>
+                            </div>
+                            <span class="text-[11px] font-semibold text-slate-600 shrink-0">${b.scheduledDate}</span>
+                        </div>
+                    `;
+                }).join('');
+
+            // Dernières transactions (Wave, Espèces)
+            const recentTx = [...filteredCotisations].reverse().slice(0, 2);
+            document.getElementById('dashboardMiniTxList').innerHTML = recentTx.length === 0
+                ? `<div class="bg-white/55 px-3.5 py-2.5 rounded-2xl border border-white/75 text-xs text-slate-600 text-center">
+                        Aucune cotisation enregistrée pour le moment.
+                   </div>`
+                : recentTx.map(c => {
+                    const m = getMember(c.memberId);
+                    const isWave = c.method.includes('Wave');
+                    return `
+                        <div onclick="openReceiptModal('${c.id}')" class="cursor-pointer flex items-center justify-between bg-white/55 hover:bg-white/85 px-3 py-2 rounded-2xl border border-white/70 text-xs transition">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full ${isWave ? 'bg-sky-500 text-white' : 'bg-gold-500 text-navy-950'} flex items-center justify-center text-[10px] font-extrabold">
+                                    ${isWave ? 'W' : 'F'}
+                                </span>
+                                <span class="font-bold text-navy-900">${m ? m.nom : ''} • ${c.method}</span>
+                            </div>
+                            <span class="font-extrabold text-emerald-800">${formatFCFA(c.amount)}</span>
+                        </div>
+                    `;
+                }).join('');
+        }
+
+        // ---------------------------------------------------------------------
+        // INSCRIPTIONS & VALIDATION MANUELLE
+        // ---------------------------------------------------------------------
+        function switchInscriptionTab(tab) {
+            const isList = tab === 'list';
+            document.getElementById('inscriptionSub-list').classList.toggle('hidden', !isList);
+            document.getElementById('inscriptionSub-form').classList.toggle('hidden', isList);
+            document.getElementById('tabBtn-list').className = isList
+                ? 'px-4 py-2 rounded-full text-xs font-extrabold bg-navy-900 text-white transition'
+                : 'px-4 py-2 rounded-full text-xs font-bold text-navy-900 hover:bg-white/50 transition';
+            document.getElementById('tabBtn-form').className = !isList
+                ? 'px-4 py-2 rounded-full text-xs font-extrabold bg-navy-900 text-white transition'
+                : 'px-4 py-2 rounded-full text-xs font-bold text-navy-900 hover:bg-white/50 transition';
+        }
+
+        function renderInscriptions() {
+            const grid = document.getElementById('inscriptionSub-list');
+            if (!grid) return;
+
+            if (appState.inscriptions.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full glass-panel rounded-[28px] p-8 text-center space-y-3">
+                        <div class="w-12 h-12 mx-auto rounded-2xl bg-navy-900/10 text-navy-900 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-id-card"></i>
+                        </div>
+                        <h4 class="text-sm font-extrabold text-navy-950">Aucune demande d'inscription enregistrée</h4>
+                        <p class="text-xs text-slate-600 max-w-md mx-auto">
+                            Commencez par saisir le dossier de votre premier membre (pièce d'identité, photo, témoin et consentement ARTCI) puis validez-le manuellement.
+                        </p>
+                        <button type="button" onclick="switchInscriptionTab('form')" class="px-5 py-2.5 rounded-full kpi-card-navy text-white text-xs font-extrabold">
+                            <i class="fa-solid fa-user-plus text-gold-400 mr-1.5"></i> Créer la 1ère fiche d'inscription
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = appState.inscriptions.map(ins => {
+                const formula = getFormula(ins.formuleSouhaitee);
+                const badge = ins.status === 'En attente'
+                    ? 'bg-amber-400/30 text-amber-950 border-amber-400'
+                    : ins.status === 'Validée'
+                        ? 'bg-emerald-500/25 text-emerald-950 border-emerald-400'
+                        : 'bg-red-500/25 text-red-950 border-red-400';
+
+                return `
+                    <div class="glass-panel rounded-[28px] p-5 flex flex-col justify-between gap-4">
+                        <div>
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-11 h-11 rounded-2xl kpi-card-navy text-gold-300 font-extrabold flex items-center justify-center text-sm">
+                                        ${ins.nom[0]}${ins.prenoms[0]}
+                                    </div>
+                                    <div>
+                                        <h4 class="font-extrabold text-navy-950 text-sm">${ins.nom} ${ins.prenoms}</h4>
+                                        <p class="text-xs text-slate-600">${ins.sexe} • ${ins.adresse}</p>
+                                    </div>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-[11px] font-extrabold border ${badge}">${ins.status}</span>
+                            </div>
+
+                            <div class="mt-4 bg-white/55 rounded-2xl p-3.5 text-xs space-y-1.5 border border-white/70">
+                                <div class="flex justify-between"><span class="text-slate-500">Téléphone :</span><strong class="text-navy-950">${ins.telephone}</strong></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Pièce :</span><strong class="text-navy-950">${ins.typePiece} (${ins.numeroPiece})</strong></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Témoin :</span><strong class="text-navy-950">${ins.temoinNom} (${ins.temoinTel})</strong></div>
+                                <div class="flex justify-between"><span class="text-slate-500">Formule :</span><strong class="text-gold-600">${formula.label}</strong></div>
+                            </div>
+                        </div>
+
+                        ${ins.status === 'En attente' ? `
+                            <div class="flex gap-2">
+                                <button onclick="approveInscription('${ins.id}')" class="flex-1 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition">
+                                    <i class="fa-solid fa-check mr-1"></i> Valider & Intégrer
+                                </button>
+                                <button onclick="rejectInscription('${ins.id}')" class="px-4 py-2.5 rounded-full bg-red-600/15 hover:bg-red-600 hover:text-white text-red-900 font-bold text-xs transition">
+                                    Refuser
+                                </button>
+                            </div>
+                        ` : `<p class="text-[11px] text-slate-500 text-right">Traité manuellement par Fatima</p>`}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('newInscriptionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            appState.inscriptions.unshift({
+                id: 'INS-' + Math.floor(100 + Math.random() * 900),
+                nom: fd.get('nom').toUpperCase(),
+                prenoms: fd.get('prenoms'),
+                sexe: fd.get('sexe'),
+                dateNaissance: fd.get('dateNaissance'),
+                telephone: fd.get('telephone'),
+                adresse: fd.get('adresse'),
+                typePiece: fd.get('typePiece'),
+                numeroPiece: fd.get('numeroPiece'),
+                temoinNom: fd.get('temoinNom'),
+                temoinTel: fd.get('temoinTel'),
+                formuleSouhaitee: fd.get('formuleSouhaitee'),
+                status: 'En attente'
+            });
+            saveState();
+            e.target.reset();
+            switchInscriptionTab('list');
+            refreshAllViews();
+            showToast('Dossier enregistré en attente de validation par Fatima.');
+        });
+
+        function approveInscription(insId) {
+            const ins = appState.inscriptions.find(i => i.id === insId);
+            if (!ins) return;
+            ins.status = 'Validée';
+
+            const targetGroup = appState.groups.find(g => g.formulaId === ins.formuleSouhaitee) || appState.groups[0];
+            const newMemberId = 'MBR-' + String(appState.members.length + 1).padStart(2, '0');
+
+            appState.members.push({
+                id: newMemberId,
+                nom: ins.nom,
+                prenoms: ins.prenoms,
+                sexe: ins.sexe,
+                telephone: ins.telephone,
+                adresse: ins.adresse,
+                groupId: targetGroup.id,
+                status: 'Actif',
+                piece: `${ins.typePiece} ${ins.numeroPiece}`,
+                temoin: `${ins.temoinNom} (${ins.temoinTel})`
+            });
+
+            const formula = getFormula(targetGroup.formulaId);
+            const nextTour = appState.beneficiaries.filter(b => b.groupId === targetGroup.id).length + 1;
+            appState.beneficiaries.push({
+                id: 'BEN-' + Math.floor(100 + Math.random() * 900),
+                groupId: targetGroup.id,
+                memberId: newMemberId,
+                tour: nextTour,
+                scheduledDate: '2026-12-25',
+                amount: formula.reception,
+                status: 'Programmé'
+            });
+
+            saveState();
+            refreshAllViews();
+            showToast(`${ins.nom} ${ins.prenoms} validé(e) et intégré(e) au ${targetGroup.name} !`);
+        }
+
+        function rejectInscription(insId) {
+            const ins = appState.inscriptions.find(i => i.id === insId);
+            if (!ins) return;
+            ins.status = 'Refusée';
+            saveState();
+            refreshAllViews();
+            showToast('Dossier refusé.', 'error');
+        }
+
+        // ---------------------------------------------------------------------
+        // GROUPES & MEMBRES
+        // ---------------------------------------------------------------------
+        function renderGroupsAndFormulas() {
+            const fGrid = document.getElementById('formulasGrid');
+            if (fGrid) {
+                fGrid.innerHTML = FORMULAS.map(f => `
+                    <div class="bg-white/10 border border-white/20 rounded-2xl p-3">
+                        <span class="text-[10px] text-gold-300 font-bold uppercase">Cotisation / jour</span>
+                        <div class="text-sm font-extrabold text-white">${formatFCFA(f.daily)}</div>
+                        <div class="text-[11px] text-white/80 mt-1 pt-1 border-t border-white/15">
+                            Reçoit : <strong class="text-gold-400">${formatFCFA(f.reception)}</strong>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const gContainer = document.getElementById('groupsCardsContainer');
+            if (gContainer) {
+                if (appState.groups.length === 0) {
+                    gContainer.innerHTML = `
+                        <div class="col-span-full glass-panel rounded-[28px] p-7 text-center space-y-2.5">
+                            <h4 class="text-sm font-extrabold text-navy-950">Aucun groupe créé pour le moment</h4>
+                            <p class="text-xs text-slate-600">Créez votre premier groupe de 10 participants maximum en choisissant l'une des 8 formules officielles ci-dessus.</p>
+                            <button type="button" onclick="openCreateGroupModal()" class="px-5 py-2.5 rounded-full kpi-card-navy text-white text-xs font-extrabold">
+                                <i class="fa-solid fa-plus text-gold-400 mr-1"></i> Créer mon premier groupe
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    gContainer.innerHTML = appState.groups.map(g => {
+                        const f = getFormula(g.formulaId);
+                        const members = appState.members.filter(m => m.groupId === g.id);
+                        return `
+                            <div class="glass-panel rounded-[28px] p-5 space-y-3">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h4 class="font-extrabold text-navy-950 text-base">${g.name}</h4>
+                                        <p class="text-xs text-slate-600">Démarré le ${g.startDate} • ${members.length}/10 membres</p>
+                                    </div>
+                                    <span class="px-3 py-1 rounded-full kpi-card-gold text-navy-950 font-extrabold text-xs">
+                                        ${formatFCFA(f.reception)}
+                                    </span>
+                                </div>
+                                <div class="flex flex-wrap gap-1.5 pt-2">
+                                    ${members.length === 0
+                                        ? `<span class="text-xs text-slate-500 italic">Aucun membre validé dans ce groupe pour l'instant.</span>`
+                                        : members.map(m => `<span class="px-3 py-1 rounded-full bg-white/75 text-navy-900 text-xs font-bold border border-white">${m.nom} ${m.prenoms.split(' ')[0]}</span>`).join('')
+                                    }
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+        }
+
+        function renderMembers() {
+            const q = (document.getElementById('memberSearchInput')?.value || '').toLowerCase();
+            const tbody = document.getElementById('membersTableBody');
+            if (!tbody) return;
+
+            const list = appState.members.filter(m => `${m.nom} ${m.prenoms} ${m.telephone}`.toLowerCase().includes(q));
+            if (list.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="py-6 px-4 text-center text-xs text-slate-600">
+                            Aucun membre actif enregistré. Les membres apparaissent ici après validation manuelle de leur inscription par Fatima.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = list.map(m => {
+                const g = getGroup(m.groupId);
+                const paid = appState.cotisations.filter(c => c.memberId === m.id).reduce((s, c) => s + Number(c.amount), 0);
+                return `
+                    <tr class="hover:bg-white/40 transition">
+                        <td class="py-3 px-4">
+                            <div class="font-extrabold text-navy-950">${m.nom} ${m.prenoms}</div>
+                            <div class="text-[10px] text-slate-600">${m.piece}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="font-bold text-navy-900">${m.telephone}</div>
+                            <div class="text-[10px] text-slate-600">Témoin : ${m.temoin}</div>
+                        </td>
+                        <td class="py-3 px-4 font-bold text-navy-900">${g ? g.name : '-'}</td>
+                        <td class="py-3 px-4 font-extrabold text-emerald-800">${formatFCFA(paid)}</td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="toggleMemberStatus('${m.id}')" class="px-3 py-1 rounded-full text-[11px] font-extrabold ${m.status === 'Actif' ? 'bg-emerald-600/20 text-emerald-950' : 'bg-slate-400/30 text-slate-800'}">
+                                ${m.status}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function toggleMemberStatus(id) {
+            const m = getMember(id);
+            if (!m) return;
+            m.status = m.status === 'Actif' ? 'Suspendu' : 'Actif';
+            saveState();
+            refreshAllViews();
+        }
+
+        function openCreateGroupModal() { document.getElementById('createGroupModal').classList.remove('hidden'); }
+        function closeCreateGroupModal() { document.getElementById('createGroupModal').classList.add('hidden'); }
+
+        document.getElementById('createGroupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('newGroupName').value.trim();
+            const formulaId = document.getElementById('newGroupFormula').value;
+            const startDate = document.getElementById('newGroupStartDate').value;
+            const newGroupId = 'GRP-' + Math.floor(10 + Math.random() * 90);
+            appState.groups.push({
+                id: newGroupId,
+                name, formulaId, startDate, step: 1, status: 'Actif'
+            });
+            appState.selectedGroupId = newGroupId;
+            appState.auditLogs.unshift({
+                date: new Date().toLocaleString('fr-FR'),
+                text: `Création du groupe "${name}" (${getFormula(formulaId).label}) démarrant le ${startDate}.`
+            });
+            saveState();
+            closeCreateGroupModal();
+            e.target.reset();
+            refreshAllViews();
+            showToast(`Groupe "${name}" créé !`);
+        });
+
+        // ---------------------------------------------------------------------
+        // COTISATIONS, WAVE & REÇUS
+        // ---------------------------------------------------------------------
+        function renderCotisations() {
+            const gSel = document.getElementById('payGroupSelect');
+            if (gSel) {
+                const prev = gSel.value;
+                gSel.innerHTML = appState.groups.length === 0
+                    ? `<option value="">Créez d'abord un groupe</option>`
+                    : appState.groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+                if (prev && getGroup(prev)) gSel.value = prev;
+                updatePaymentMemberOptions();
+            }
+
+            const paidTodayIds = new Set(appState.cotisations.filter(c => c.date === TODAY_STR).map(c => c.memberId));
+            const lateMembers = appState.members.filter(m => m.status === 'Actif' && !paidTodayIds.has(m.id));
+            const lateBox = document.getElementById('latePaymentsList');
+
+            lateBox.innerHTML = lateMembers.length === 0
+                ? `<p class="col-span-full text-xs font-bold text-slate-600">${appState.members.length === 0 ? 'Aucun membre actif pour le moment.' : 'Tous les membres sont à jour aujourd\'hui !'}</p>`
+                : lateMembers.map(m => {
+                    const g = getGroup(m.groupId);
+                    const f = g ? getFormula(g.formulaId) : FORMULAS[0];
+                    return `
+                        <div class="bg-white/65 px-3.5 py-2.5 rounded-2xl border border-white flex items-center justify-between gap-2">
+                            <div>
+                                <p class="text-xs font-extrabold text-navy-950">${m.nom} ${m.prenoms}</p>
+                                <p class="text-[10px] text-red-700 font-bold">${formatFCFA(f.daily)}</p>
+                            </div>
+                            <button onclick="quickFillPayment('${m.groupId}', '${m.id}')" class="px-3 py-1.5 rounded-full bg-navy-900 text-gold-400 text-[10px] font-extrabold">
+                                Encaisser
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+
+            const total = appState.cotisations.reduce((s, c) => s + Number(c.amount), 0);
+            document.getElementById('totalCotisationsBadge').textContent = formatFCFA(total);
+
+            const txBody = document.getElementById('cotisationsTableBody');
+            if (appState.cotisations.length === 0) {
+                txBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="py-6 px-4 text-center text-xs text-slate-600">
+                            Aucune cotisation enregistrée. Utilisez le formulaire à gauche pour saisir le premier versement Wave ou Espèces.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            txBody.innerHTML = [...appState.cotisations].reverse().map(c => {
+                const m = getMember(c.memberId);
+                return `
+                    <tr class="hover:bg-white/40 transition">
+                        <td class="py-3 px-4">
+                            <div class="font-mono font-bold text-navy-950">${c.receiptNo}</div>
+                            <div class="text-[10px] text-slate-600">${c.date}</div>
+                        </td>
+                        <td class="py-3 px-4 font-bold text-navy-900">${m ? m.nom + ' ' + m.prenoms : '-'}</td>
+                        <td class="py-3 px-4">
+                            <span class="font-semibold text-navy-900">${c.method}</span>
+                            ${c.waveRef !== '-' ? `<div class="text-[10px] font-mono text-sky-900">${c.waveRef}</div>` : ''}
+                        </td>
+                        <td class="py-3 px-4 font-extrabold text-emerald-800">${formatFCFA(c.amount)}</td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="openReceiptModal('${c.id}')" class="px-3 py-1 rounded-full bg-navy-900 text-gold-400 text-[11px] font-bold">
+                                Reçu
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updatePaymentMemberOptions() {
+            const gId = document.getElementById('payGroupSelect').value;
+            const grp = getGroup(gId);
+            const f = grp ? getFormula(grp.formulaId) : FORMULAS[0];
+            document.getElementById('payAmountInput').value = f.daily;
+
+            const members = appState.members.filter(m => m.groupId === gId && m.status === 'Actif');
+            document.getElementById('payMemberSelect').innerHTML = members.length
+                ? members.map(m => `<option value="${m.id}">${m.nom} ${m.prenoms}</option>`).join('')
+                : `<option value="">Aucun membre actif</option>`;
+        }
+
+        function quickFillPayment(gId, mId) {
+            document.getElementById('payGroupSelect').value = gId;
+            updatePaymentMemberOptions();
+            document.getElementById('payMemberSelect').value = mId;
+        }
+
+        function toggleWaveRefField() {
+            const isWave = document.getElementById('payMethodSelect').value.includes('Wave');
+            document.getElementById('waveRefContainer').classList.toggle('hidden', !isWave);
+        }
+
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const groupId = document.getElementById('payGroupSelect').value;
+            const memberId = document.getElementById('payMemberSelect').value;
+            const amount = Number(document.getElementById('payAmountInput').value);
+            const date = document.getElementById('payDateInput').value;
+            const method = document.getElementById('payMethodSelect').value;
+            const waveRef = document.getElementById('payWaveRef').value.trim().toUpperCase();
+
+            if (!memberId) return showToast('Sélectionnez un membre.', 'error');
+            if (method.includes('Wave') && !waveRef) return showToast('Saisissez l\'ID transaction Wave vérifié.', 'error');
+
+            const newId = 'OP-' + Math.floor(1000 + Math.random() * 9000);
+            const receiptNo = 'REC-2026-' + String(appState.cotisations.length + 1).padStart(3, '0');
+
+            appState.cotisations.push({
+                id: newId, receiptNo, memberId, groupId, amount, date, method,
+                waveRef: method.includes('Wave') ? waveRef : '-'
+            });
+
+            saveState();
+            document.getElementById('payWaveRef').value = '';
+            refreshAllViews();
+            openReceiptModal(newId);
+            showToast('Paiement validé et reçu généré !');
+        });
+
+        function openReceiptModal(cId) {
+            const c = appState.cotisations.find(item => item.id === cId);
+            if (!c) return;
+            const m = getMember(c.memberId);
+            const g = getGroup(c.groupId);
+            const f = g ? getFormula(g.formulaId) : FORMULAS[0];
+
+            document.getElementById('recNumber').textContent = c.receiptNo;
+            document.getElementById('recAmount').textContent = formatFCFA(c.amount);
+            document.getElementById('recMember').textContent = m ? `${m.nom} ${m.prenoms}` : '-';
+            document.getElementById('recPhone').textContent = m ? m.telephone : '-';
+            document.getElementById('recGroup').textContent = g ? g.name : '-';
+            document.getElementById('recFormula').textContent = `${formatFCFA(f.daily)}/j → ${formatFCFA(f.reception)}`;
+            document.getElementById('recDate').textContent = c.date;
+            document.getElementById('recMethod').textContent = c.waveRef !== '-' ? `${c.method} (${c.waveRef})` : c.method;
+            document.getElementById('recOpRef').textContent = c.id;
+
+            const cleanPhone = m ? m.telephone.replace(/[^0-9]/g, '') : '';
+            const waTextRaw =
+                `✅ *REÇU OFFICIEL FATONTINE CASH*\n` +
+                `🧾 Reçu : *${c.receiptNo}*\n` +
+                `👤 Membre : *${m ? m.nom + ' ' + m.prenoms : ''}*\n` +
+                `💰 Montant : *${formatFCFA(c.amount)}*\n` +
+                `📅 Date : ${c.date}\n` +
+                `👥 Groupe : ${g ? g.name : ''}\n` +
+                `_Validé par Fatima • La tontine, en toute simplicité._`;
+            const waText = encodeURIComponent(waTextRaw);
+
+            document.getElementById('whatsappShareBtn').onclick = () => {
+                if (desktopBridge) {
+                    desktopBridge.openWhatsApp({ phone: cleanPhone, text: waTextRaw });
+                } else {
+                    window.open(`https://wa.me/${cleanPhone}?text=${waText}`, '_blank');
+                }
+            };
+
+            currentReceiptPayload = {
+                receiptNo: c.receiptNo,
+                amount: c.amount,
+                member: m ? `${m.nom} ${m.prenoms}` : '-',
+                phone: m ? m.telephone : '-',
+                group: g ? g.name : '-',
+                formula: `${formatFCFA(f.daily)}/j → ${formatFCFA(f.reception)}`,
+                date: c.date,
+                method: c.waveRef !== '-' ? `${c.method} (${c.waveRef})` : c.method,
+                opRef: c.id
+            };
+
+            document.getElementById('receiptModal').classList.remove('hidden');
+        }
+
+        function closeReceiptModal() { document.getElementById('receiptModal').classList.add('hidden'); }
+
+        // ---------------------------------------------------------------------
+        // BÉNÉFICIAIRES & RAPPORTS
+        // ---------------------------------------------------------------------
+        function renderBeneficiaries() {
+            const filterEl = document.getElementById('benefGroupFilter');
+            if (!filterEl) return;
+            const prev = filterEl.value;
+            filterEl.innerHTML = `<option value="ALL">Tous les groupes</option>` + appState.groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+            if (prev) filterEl.value = prev;
+
+            const sel = filterEl.value;
+            const list = appState.beneficiaries.filter(b => sel === 'ALL' || b.groupId === sel).sort((a, b) => a.tour - b.tour);
+
+            const benBody = document.getElementById('beneficiariesTableBody');
+            if (list.length === 0) {
+                benBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-6 px-4 text-center text-xs text-slate-600">
+                            Aucun bénéficiaire programmé pour le moment. Les tours sont générés dès qu'un membre validé est intégré à un groupe.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                benBody.innerHTML = list.map(b => {
+                    const m = getMember(b.memberId);
+                    const g = getGroup(b.groupId);
+                    return `
+                        <tr class="hover:bg-white/40 transition">
+                            <td class="py-3 px-4 font-extrabold text-navy-950">#${b.tour}</td>
+                            <td class="py-3 px-4">
+                                <div class="font-extrabold text-navy-950">${m ? m.nom + ' ' + m.prenoms : '-'}</div>
+                                <div class="text-[10px] text-slate-600">${g ? g.name : '-'}</div>
+                            </td>
+                            <td class="py-3 px-4 font-semibold text-navy-900">${b.scheduledDate}</td>
+                            <td class="py-3 px-4 font-extrabold text-navy-950">${formatFCFA(b.amount)}</td>
+                            <td class="py-3 px-4">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${b.status === 'Distribué' ? 'bg-emerald-600/20 text-emerald-950' : 'bg-amber-400/30 text-amber-950'}">${b.status}</span>
+                            </td>
+                            <td class="py-3 px-4 text-right space-x-1">
+                                ${b.status !== 'Distribué' ? `<button onclick="confirmDistribution('${b.id}')" class="px-3 py-1 rounded-full bg-emerald-700 text-white text-[11px] font-bold">Remettre</button>` : ''}
+                                <button onclick="openSwapModal('${b.id}')" class="px-3 py-1 rounded-full bg-white/80 text-navy-900 text-[11px] font-bold">Tour</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            document.getElementById('orderAuditLog').innerHTML = appState.auditLogs.map(l =>
+                `<div class="bg-white/55 px-3 py-2 rounded-xl flex justify-between"><span>${l.text}</span><span class="text-[10px] text-slate-500">${l.date}</span></div>`
+            ).join('');
+        }
+
+        function confirmDistribution(id) {
+            const b = appState.beneficiaries.find(i => i.id === id);
+            if (!b) return;
+            b.status = 'Distribué';
+            const m = getMember(b.memberId);
+            appState.auditLogs.unshift({ date: new Date().toLocaleString('fr-FR'), text: `Distribution de ${formatFCFA(b.amount)} confirmée pour ${m ? m.nom : ''}.` });
+            saveState();
+            refreshAllViews();
+            showToast('Distribution confirmée !');
+        }
+
+        function openSwapModal(id) {
+            const b = appState.beneficiaries.find(i => i.id === id);
+            if (!b) return;
+            const m = getMember(b.memberId);
+            document.getElementById('swapBenId').value = id;
+            document.getElementById('swapNewTour').value = b.tour;
+            document.getElementById('swapMemberLabel').textContent = `${m ? m.nom + ' ' + m.prenoms : ''} (Tour actuel : #${b.tour})`;
+            document.getElementById('swapOrderModal').classList.remove('hidden');
+        }
+        function closeSwapModal() { document.getElementById('swapOrderModal').classList.add('hidden'); }
+
+        document.getElementById('swapOrderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const b = appState.beneficiaries.find(i => i.id === document.getElementById('swapBenId').value);
+            if (!b) return;
+            const oldT = b.tour;
+            b.tour = Number(document.getElementById('swapNewTour').value);
+            const reason = document.getElementById('swapReason').value.trim();
+            const m = getMember(b.memberId);
+            appState.auditLogs.unshift({ date: new Date().toLocaleString('fr-FR'), text: `Tour de ${m ? m.nom : ''} modifié (#${oldT} → #${b.tour}) : ${reason}` });
+            saveState();
+            closeSwapModal();
+            e.target.reset();
+            refreshAllViews();
+            showToast('Ordre modifié et tracé.');
+        });
+
+        function renderReports() {
+            const tbody = document.getElementById('financialSummaryBody');
+            if (!tbody) return;
+            if (appState.groups.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="py-6 px-4 text-center text-xs text-slate-600">
+                            Aucun groupe actif à synthétiser. Créez un premier groupe pour suivre la collecte brute (100%), la part bénéficiaires (90%) et la commission Fatima (10%).
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            tbody.innerHTML = appState.groups.map(g => {
+                const f = getFormula(g.formulaId);
+                const col = appState.cotisations.filter(c => c.groupId === g.id).reduce((s, c) => s + Number(c.amount), 0);
+                return `
+                    <tr>
+                        <td class="py-3 px-4 font-extrabold text-navy-950">${g.name}</td>
+                        <td class="py-3 px-4">${formatFCFA(f.daily)}</td>
+                        <td class="py-3 px-4 font-bold">${formatFCFA(col)}</td>
+                        <td class="py-3 px-4 font-bold text-emerald-800">${formatFCFA(col * 0.90)}</td>
+                        <td class="py-3 px-4 font-extrabold text-gold-600">${formatFCFA(col * 0.10)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function exportCSV(type) {
+            let csv = '\uFEFF';
+            if (type === 'cotisations') {
+                csv += 'Recu;Date;Membre;Groupe;Montant_FCFA;Mode;ID_Wave\n';
+                appState.cotisations.forEach(c => {
+                    const m = getMember(c.memberId);
+                    const g = getGroup(c.groupId);
+                    csv += `${c.receiptNo};${c.date};"${m ? m.nom + ' ' + m.prenoms : ''}";"${g ? g.name : ''}";${c.amount};"${c.method}";${c.waveRef}\n`;
+                });
+            } else {
+                csv += 'ID;Nom;Prenoms;Telephone;Adresse;Groupe;Statut;Piece;Temoin\n';
+                appState.members.forEach(m => {
+                    const g = getGroup(m.groupId);
+                    csv += `${m.id};"${m.nom}";"${m.prenoms}";"${m.telephone}";"${m.adresse}";"${g ? g.name : ''}";${m.status};"${m.piece}";"${m.temoin}"\n`;
+                });
+            }
+            const filename = `FATONTINE_CASH_${type}_${TODAY_STR}.csv`;
+
+            if (desktopBridge) {
+                const res = await desktopBridge.saveTextFile({
+                    defaultName: filename,
+                    content: csv,
+                    filters: [{ name: 'Fichier CSV', extensions: ['csv'] }]
+                });
+                if (res && res.canceled) return;
+                if (res && res.ok) {
+                    showToast(`Export ${type} enregistré !`);
+                    if (res.filePath) desktopBridge.showInFolder(res.filePath);
+                } else {
+                    showToast((res && res.error) || 'Export impossible.', 'error');
+                }
+                return;
+            }
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast(`Export ${type} téléchargé !`);
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('passwordModalInput').addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') { event.preventDefault(); submitPasswordModal(); }
+                if (event.key === 'Escape') { event.preventDefault(); resolvePassword(null); }
+            });
+
+            await setupDesktopMode();
+            await hydrateFromDesktop();
+
+            if (sessionStorage.getItem('fatontine_lg_auth') === 'true') completeLogin();
+        });
+    </script>
+</body>
+</html>
