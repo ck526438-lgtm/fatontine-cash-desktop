@@ -1171,12 +1171,7 @@
             inscriptions: [],
             cotisations: [],
             beneficiaries: [],
-            auditLogs: [
-                {
-                    date: new Date().toLocaleString('fr-FR'),
-                    text: 'Plateforme FATONTINE CASH initialisée à zéro pour les premiers utilisateurs réels en Côte d\'Ivoire.'
-                }
-            ]
+            auditLogs: []
         };
 
         const STORAGE_KEY = 'fatontine_liquid_glass_v1';
@@ -1198,7 +1193,7 @@
                 inscriptions: Array.isArray(parsed.inscriptions) ? parsed.inscriptions : [],
                 cotisations: Array.isArray(parsed.cotisations) ? parsed.cotisations : [],
                 beneficiaries: Array.isArray(parsed.beneficiaries) ? parsed.beneficiaries : [],
-                auditLogs: Array.isArray(parsed.auditLogs) && parsed.auditLogs.length ? parsed.auditLogs : fallback.auditLogs
+                auditLogs: Array.isArray(parsed.auditLogs) ? parsed.auditLogs : []
             };
         }
 
@@ -1469,7 +1464,6 @@
 
         function resetDemoData() {
             appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
-            appState.auditLogs[0].date = new Date().toLocaleString('fr-FR');
             saveState();
             refreshAllViews();
             showToast('Espace remis à zéro (0 membre, 0 opération) prêt pour vos premiers utilisateurs.');

@@ -61,6 +61,10 @@ Bouton **« Sauvegarde / Restauration PC »** dans la barre latérale :
 
 ## 3. Fonctionnalités
 
+L'application démarre avec une base **entièrement vide** (0 groupe, 0 membre, 0 cotisation,
+0 bénéficiaire, journal d'audit vide) : elle est prête à recevoir les premiers utilisateurs
+réels sans aucune donnée de démonstration.
+
 - Gestion des groupes, membres, inscriptions, cotisations (Wave / espèces), bénéficiaires.
 - Reçus PDF (format A5) générés en natif via `webContents.printToPDF()` — bouton **Enregistrer PDF**.
 - Impression directe du reçu et des rapports.
