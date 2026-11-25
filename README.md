@@ -138,6 +138,19 @@ git push origin v1.0.0
 
 Le workflow crée automatiquement la **Release GitHub** `v1.0.0` et y attache les deux `.exe`.
 
+### Mettre le dépôt en ligne (première publication)
+
+Le dépôt distant est déjà configuré (`origin` → `github.com/ck526438-lgtm/fatontine-cash-desktop`).
+S'il reste à pousser le code, s'authentifier une fois puis :
+
+```bash
+git remote add origin https://github.com/ck526438-lgtm/fatontine-cash-desktop.git
+git push -u origin main
+```
+
+Avec GitHub CLI : `gh auth login`, puis `gh repo create fatontine-cash-desktop --private --source=. --remote=origin --push`.
+Le workflow démarre automatiquement à la réception du premier `push` sur `main`.
+
 Pour passer à la version suivante (ex. 1.0.1) : mettre à jour `version` dans `package.json`
 et les noms de fichiers dans le workflow, puis pousser le tag `v1.0.1`.
 
